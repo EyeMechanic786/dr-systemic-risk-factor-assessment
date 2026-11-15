@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="application-name" content="DR Systemic Risk Factor Assessment tool">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DR Risk Assessment">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#005EB8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>DR Systemic Risk Factor Assessment tool</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #F0F4F5;
+    color: #212B32;
+    font: 15px/1.35 "Segoe UI", Arial, sans-serif;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  .banner {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #005EB8;
+    color: #fff;
+    padding: 6px 14px;
+  }
+  .banner strong { white-space: nowrap; font-size: 16px; }
+  .banner p { margin: 0; font-size: 14px; }
+  main {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 60fr 40fr;
+    gap: 8px;
+    padding: 8px;
+  }
+  .left { min-height: 0; overflow: auto; }
+  .right {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .card { background: #fff; border: 1px solid #D8E2E6; border-radius: 8px; margin-bottom: 4px; }
+  .tone-ocular { background: #E3F0F8; border-color: #B7D3E6; }
+  .tone-a { background: #E5F5EC; border-color: #B7DCC8; }
+  .tone-b { background: #F8F1E6; border-color: #E4D2B6; }
+  .tone-c { background: #EEEAF6; border-color: #D2C9E4; }
+  .tone-med { background: #E7F6F8; border-color: #B7DDE3; }
+  .tone-alerts { background: #FDEEEC; border-color: #F0C9C4; }
+  .tone-epr { background: #F4F7FB; border-color: #D3DDEA; }
+  .tone-gp { background: #F3F8F4; border-color: #C9DECF; }
+  .tone-session { background: #F7F4EE; border-color: #E2D8C8; }
+  .right > .card { margin-bottom: 0; }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #005EB8;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 7px 7px 0 0;
+  }
+  .card-head h2 { margin: 0; font-size: 14px; font-weight: 650; }
+  .card-head .meta { font-size: 13px; white-space: nowrap; }
+  .body { padding: 4px 8px; }
+  .audit-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .cluster { display: flex; align-items: center; gap: 8px; }
+  .k { font-size: 14px; font-weight: 700; color: #005EB8; white-space: nowrap; }
+  .eye-table {
+    display: grid;
+    grid-template-columns: 64px minmax(240px, 1.35fr) minmax(200px, 1fr) 100px;
+    gap: 4px 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .eye-h { font-size: 13px; font-weight: 700; color: #005EB8; }
+  .eye-side { font-size: 14px; font-weight: 700; }
+  .cst-cell { display: flex; align-items: center; gap: 4px; }
+  .cst-cell input { width: 64px; }
+  .field {
+    display: grid;
+    grid-template-columns: 148px 1fr;
+    gap: 4px 8px;
+    align-items: center;
+    margin: 0;
+  }
+  .field .name { font-size: 14px; font-weight: 700; }
+  .inline, .bmi-line, .btn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+  .hint { font-size: 13px; font-weight: 700; color: #005EB8; }
+  .unit { font-size: 13px; }
+  input[type="text"], input[type="number"], select {
+    height: 30px;
+    border: 1px solid #005EB8;
+    border-radius: 4px;
+    background: #fff;
+    padding: 0 8px;
+  }
+  input[type="number"] { width: 72px; }
+  #qiId { width: 108px; }
+  #ocularPlan { max-width: 230px; }
+  textarea {
+    width: 100%;
+    border: 1px solid #005EB8;
+    border-radius: 4px;
+    background: #fff;
+    padding: 6px;
+    resize: none;
+    font: 13px/1.35 Consolas, "Courier New", monospace;
+  }
+  #epr { height: 132px; }
+  #gp { height: 88px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pills button {
+    appearance: none;
+    border: 1px solid #005EB8;
+    background: #fff;
+    border-radius: 999px;
+    min-height: 28px;
+    padding: 2px 9px;
+    font-size: 13px;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+  .pills button[aria-pressed="true"] { background: #005EB8; color: #fff; }
+  .pills button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid #FFB81C;
+    outline-offset: 1px;
+  }
+  .btn {
+    appearance: none;
+    border: 0;
+    background: #005EB8;
+    color: #fff;
+    border-radius: 4px;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn.secondary { background: #fff; color: #005EB8; border: 1px solid #005EB8; }
+  .btn.onhead { background: #fff; color: #005EB8; height: 26px; font-size: 13px; }
+  .bmi-line { position: relative; }
+  .popover {
+    position: absolute;
+    z-index: 5;
+    top: 30px;
+    left: 0;
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    background: #fff;
+    border: 1px solid #005EB8;
+    border-radius: 4px;
+    padding: 8px;
+  }
+  .popover[hidden] { display: none; }
+  .popover label { display: flex; flex-direction: column; gap: 2px; font-size: 13px; font-weight: 700; }
+  .needs-vba { background: #FFB81C; border-radius: 4px; padding: 1px 6px; }
+  #badges { padding: 4px 8px 0; }
+  .badge {
+    display: inline-block;
+    background: #007F3B;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 13px;
+    padding: 2px 8px;
+    margin: 0 4px 4px 0;
+  }
+  #alerts { flex: 1; min-height: 0; overflow: auto; padding: 4px 8px 6px; }
+  .alerts-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .alert {
+    margin: 0 0 4px;
+    padding: 4px 6px;
+    background: #fff;
+    border-left: 4px solid #005EB8;
+    font-size: 14px;
+  }
+  .alert.red { border-left-color: #DA291C; background: #FFF6F5; }
+  .alert.amber { border-left-color: #FFB81C; background: #FFF9EE; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0 4px;
+    margin-right: 4px;
+    color: #fff;
+    background: #005EB8;
+  }
+  .alert.red .tag { background: #DA291C; }
+  .alert.amber .tag { background: #FFB81C; color: #212B32; }
+  .empty { margin: 4px 0; font-size: 14px; }
+  .footer { margin: 0; font-size: 13px; }
+  .glp-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(180px, 0.8fr);
+    gap: 8px;
+    background: #FFF6E8;
+    border: 1px solid #E4C48A;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+  }
+  .med-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 3px 6px;
+  }
+  .med-grid label, .glp-panel label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #005EB8;
+  }
+  .med-grid select, .glp-panel select { width: 100%; height: 26px; font-size: 12px; padding: 0 2px; }
+  .icd { position: relative; min-width: 0; }
+  .icd-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .icd-chips { display: contents; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    background: #fff;
+    border: 1px solid #005EB8;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.2;
+    padding: 1px 4px 1px 8px;
+  }
+  .chip button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #005EB8;
+    font: 14px/1 Arial, sans-serif;
+    padding: 0 4px;
+    cursor: pointer;
+  }
+  .icd-row input { flex: 1; min-width: 140px; height: 28px; }
+  .icd-list {
+    position: absolute;
+    z-index: 8;
+    left: 0;
+    right: 0;
+    top: calc(100% + 2px);
+    margin: 0;
+    padding: 2px 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #005EB8;
+    border-radius: 4px;
+    max-height: 232px;
+    overflow: auto;
+    box-shadow: 0 6px 16px rgba(33, 43, 50, 0.16);
+  }
+  .icd-list.up { top: auto; bottom: calc(100% + 2px); }
+  .icd-list li {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 4px 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .icd-list li.on { background: #E3F0F8; }
+  .icd-code { flex: none; width: 46px; font-weight: 700; color: #005EB8; }
+  .out-card .body { padding-top: 6px; }
+  .phone-note { display: none; }
+  @media (max-width: 1100px) {
+    html, body { height: auto; min-height: 100%; overflow: auto; }
+    body {
+      height: auto;
+      min-height: 100dvh;
+      overflow: auto;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .banner { flex-wrap: wrap; align-items: flex-start; padding: 10px 12px; }
+    .banner strong { white-space: normal; font-size: 18px; }
+    .banner p { font-size: 14px; }
+    .phone-note { display: block; margin: 4px 0 0; font-size: 14px; }
+    main { display: block; padding: 8px; }
+    .left, .right { overflow: visible; height: auto; min-height: 0; }
+    .right { gap: 8px; }
+    .card { margin-bottom: 8px; }
+    .card-head { align-items: flex-start; }
+    .card-head h2 { font-size: 16px; }
+    .card-head .meta { white-space: normal; }
+    .field { grid-template-columns: 1fr; gap: 4px; margin: 8px 0; }
+    .field .name { font-size: 15px; }
+    .pills button { min-height: 40px; padding: 6px 12px; font-size: 15px; }
+    input[type="text"], input[type="number"], select, textarea { font-size: 16px; }
+    input[type="number"] { width: 88px; height: 40px; }
+    select, .icd-row input { height: 40px; }
+    .eye-table { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+    .eye-table > :first-child, .eye-h { display: none; }
+    .eye-side { margin-top: 8px; font-size: 16px; }
+    .eye-table [data-caption]::before {
+      content: attr(data-caption);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #005EB8;
+    }
+    .glp-panel, .med-grid { grid-template-columns: 1fr 1fr; }
+    .med-grid label, .glp-panel label { font-size: 13px; }
+    #epr { height: 180px; }
+    #gp { height: 140px; }
+    .btn { height: 40px; font-size: 15px; }
+    .btn-row { gap: 8px; }
+    .footer { padding-bottom: 8px; }
+  }
+  @media (max-width: 520px) {
+    .glp-panel, .med-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header class="banner">
+  <strong>DR Systemic Risk Factor Assessment tool</strong>
+  <p>LOCAL QI AUDIT TOOL — No data leaves this device. Use anonymised QI Study IDs unless exporting directly to an encrypted NHS Trust network drive.</p>
+  <p class="phone-note">On iPhone or Android, use the browser menu and choose Add to Home Screen. It then opens from the home screen and the assessment stays on this phone.</p>
+</header>
+<main>
+  <form id="form" class="left" autocomplete="off">
+    <section class="card tone-ocular">
+      <div class="card-head"><h2>Ocular and audit context</h2></div>
+      <div class="body">
+        <div class="audit-row">
+          <div class="cluster">
+            <label class="k" for="qiId">QI Audit ID</label>
+            <input id="qiId" type="text" maxlength="40" placeholder="QI-001" spellcheck="false">
+          </div>
+          <div class="cluster">
+            <label class="k" for="ocularPlan">Ocular plan</label>
+            <select id="ocularPlan">
+              <option value="">Select</option>
+              <option>Observation</option>
+              <option>Start/Continue Anti-VEGF</option>
+              <option>Macular Laser</option>
+              <option>PRP Laser</option>
+              <option>Intravitreal Steroid</option>
+            </select>
+          </div>
+        </div>
+        <div class="eye-table">
+          <div></div>
+          <div class="eye-h">DR grade</div>
+          <div class="eye-h">Maculopathy</div>
+          <div class="eye-h">CST</div>
+          <div class="eye-side">Right</div>
+          <div class="pills" role="group" aria-label="Right eye DR grade" data-caption="Right DR grade">
+            <button type="button" data-group="drRight" data-value="R0" title="No retinopathy">R0</button>
+            <button type="button" data-group="drRight" data-value="R1" title="Background">R1</button>
+            <button type="button" data-group="drRight" data-value="R2L" title="Lower-risk pre-proliferative">R2L</button>
+            <button type="button" data-group="drRight" data-value="R2H" title="Higher-risk pre-proliferative">R2H</button>
+            <button type="button" data-group="drRight" data-value="R3A" title="Active proliferative">R3A</button>
+            <button type="button" data-group="drRight" data-value="R3S" title="Stable treated proliferative">R3S</button>
+          </div>
+          <div class="pills" role="group" aria-label="Right eye maculopathy" data-caption="Right maculopathy">
+            <button type="button" data-group="macRight" data-value="M0">M0</button>
+            <button type="button" data-group="macRight" data-value="M1 Non-Centre">M1 non-centre</button>
+            <button type="button" data-group="macRight" data-value="M1 Centre DMO">M1 centre</button>
+          </div>
+          <div class="cst-cell" data-caption="Right CST">
+            <input id="cstRight" type="number" step="1" inputmode="numeric" aria-label="Right eye CST">
+            <span class="unit">µm</span>
+          </div>
+          <div class="eye-side">Left</div>
+          <div class="pills" role="group" aria-label="Left eye DR grade" data-caption="Left DR grade">
+            <button type="button" data-group="drLeft" data-value="R0" title="No retinopathy">R0</button>
+            <button type="button" data-group="drLeft" data-value="R1" title="Background">R1</button>
+            <button type="button" data-group="drLeft" data-value="R2L" title="Lower-risk pre-proliferative">R2L</button>
+            <button type="button" data-group="drLeft" data-value="R2H" title="Higher-risk pre-proliferative">R2H</button>
+            <button type="button" data-group="drLeft" data-value="R3A" title="Active proliferative">R3A</button>
+            <button type="button" data-group="drLeft" data-value="R3S" title="Stable treated proliferative">R3S</button>
+          </div>
+          <div class="pills" role="group" aria-label="Left eye maculopathy" data-caption="Left maculopathy">
+            <button type="button" data-group="macLeft" data-value="M0">M0</button>
+            <button type="button" data-group="macLeft" data-value="M1 Non-Centre">M1 non-centre</button>
+            <button type="button" data-group="macLeft" data-value="M1 Centre DMO">M1 centre</button>
+          </div>
+          <div class="cst-cell" data-caption="Left CST">
+            <input id="cstLeft" type="number" step="1" inputmode="numeric" aria-label="Left eye CST">
+            <span class="unit">µm</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card tone-a">
+      <div class="card-head"><h2>A · Diabetes baseline and metabolic profile</h2></div>
+      <div class="body">
+        <div class="field">
+          <div class="name">1. Diabetes</div>
+          <div class="pills" role="group" aria-label="Type of diabetes">
+            <button type="button" data-group="diabetes" data-value="Type 1">Type 1</button>
+            <button type="button" data-group="diabetes" data-value="Type 2">Type 2</button>
+            <button type="button" data-group="diabetes" data-value="Other (MODY/Pancreatic)">Other (MODY/Pancreatic)</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="name" for="duration">2. Duration</label>
+          <div class="inline">
+            <input id="duration" type="number" step="1" inputmode="decimal">
+            <span class="unit">years</span>
+            <div class="pills" role="group" aria-label="Duration band">
+              <button type="button" data-group="duration" data-value="4">&lt;5y</button>
+              <button type="button" data-group="duration" data-value="7">5-10y</button>
+              <button type="button" data-group="duration" data-value="15">10-20y</button>
+              <button type="button" data-group="duration" data-value="21">&gt;20y</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">3. HbA1c</div>
+          <div class="inline">
+            <label>Current <input id="hba1c" type="number" step="1" inputmode="decimal"> <span class="unit">mmol/mol</span></label>
+            <label>Previous <input id="hba1cPrev" type="number" step="1" inputmode="decimal"></label>
+            <label>Interval <input id="hba1cInterval" type="number" step="1" inputmode="decimal"> <span class="unit">months</span></label>
+            <span id="hbaHint" class="hint"></span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name"></div>
+          <label class="check" for="frailty"><input id="frailty" type="checkbox"> Moderate/Severe Frailty (QOF DM021 Relaxed Target ≤ 75 mmol/mol)</label>
+        </div>
+        <div class="field">
+          <label class="name" for="bmi">4. BMI</label>
+          <div class="bmi-line">
+            <input id="bmi" type="number" step="0.1" inputmode="decimal">
+            <span class="unit">kg/m²</span>
+            <button type="button" class="btn secondary" id="bmiCalcBtn">Ht / Wt</button>
+            <div id="bmiPop" class="popover" hidden>
+              <label>Height cm <input id="heightCm" type="number" step="0.1" inputmode="decimal"></label>
+              <label>Weight kg <input id="weightKg" type="number" step="0.1" inputmode="decimal"></label>
+              <button type="button" class="btn" id="bmiApply">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name"></div>
+          <label class="check" for="ethnicity"><input id="ethnicity" type="checkbox"> South Asian / Black / Minority Ethnic (-2.5 kg/m² NICE NG246 adjustment)</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card tone-b">
+      <div class="card-head"><h2>B · Cardio-renal and haematology</h2></div>
+      <div class="body">
+        <div class="field">
+          <div class="name">5. Blood pressure</div>
+          <div class="inline">
+            <label>Systolic <input id="sbp" type="number" step="1" inputmode="numeric"> <span class="unit">mmHg</span></label>
+            <label>Diastolic <input id="dbp" type="number" step="1" inputmode="numeric"></label>
+            <span id="bpHint" class="hint"></span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">6. Lipids</div>
+          <div>
+            <div class="pills" role="group" aria-label="Lipid control">
+              <button type="button" data-group="lipid" data-value="Controlled on Statin">Controlled on Statin</button>
+              <button type="button" data-group="lipid" data-value="On Statin - Above Target">On Statin - Above Target</button>
+              <button type="button" data-group="lipid" data-value="Not on Statin">Not on Statin</button>
+              <button type="button" data-group="lipid" data-value="Intolerant/Declined">Intolerant/Declined</button>
+            </div>
+            <label class="check" for="exudates"><input id="exudates" type="checkbox"> Macular Hard Exudates Present</label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="name" for="egfr">7. Renal</label>
+          <div>
+            <div class="inline">
+              <span>eGFR <input id="egfr" type="number" step="1" inputmode="decimal"></span>
+              <span class="unit">mL/min/1.73m²</span>
+            </div>
+            <div class="pills" role="group" aria-label="uACR status">
+              <button type="button" data-group="uacr" data-value="Normal <3">Normal &lt;3</button>
+              <button type="button" data-group="uacr" data-value="Micro 3-30">Micro 3-30</button>
+              <button type="button" data-group="uacr" data-value="Macro >30">Macro &gt;30</button>
+              <button type="button" data-group="uacr" data-value="Overdue >12m">Overdue &gt;12m</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">8. Anaemia</div>
+          <div class="inline">
+            <div class="pills" role="group" aria-label="Anaemia">
+              <button type="button" data-group="anaemia" data-value="Normal Hb">Normal Hb</button>
+              <button type="button" data-group="anaemia" data-value="Untreated Anaemia">Untreated Anaemia</button>
+              <button type="button" data-group="anaemia" data-value="On Iron / ESA">On Iron / ESA</button>
+              <button type="button" data-group="anaemia" data-value="Not Checked">Not Checked</button>
+            </div>
+            <label>Hb <input id="hb" type="number" step="1" inputmode="decimal"> <span class="unit">g/L</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card tone-c">
+      <div class="card-head"><h2>C · Lifestyle, neuropathy and macrovascular disease</h2></div>
+      <div class="body">
+        <div class="field">
+          <div class="name">9. Smoking</div>
+          <div class="inline">
+            <div class="pills" role="group" aria-label="Smoking">
+              <button type="button" data-group="smoking" data-value="Never">Never</button>
+              <button type="button" data-group="smoking" data-value="Ex-smoker">Ex-smoker</button>
+              <button type="button" data-group="smoking" data-value="Current Smoker">Current Smoker</button>
+            </div>
+            <label class="check" id="vbaWrap" for="vba"><input id="vba" type="checkbox"> VBA Advice Delivered</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">10. CVD</div>
+          <div class="pills" role="group" aria-label="Cardiovascular disease">
+            <button type="button" data-group="cvd" data-multi="1" data-exclusive="1" data-value="None">None</button>
+            <button type="button" data-group="cvd" data-multi="1" data-value="IHD / Prior MI">IHD / Prior MI</button>
+            <button type="button" data-group="cvd" data-multi="1" data-value="Heart Failure">Heart Failure</button>
+            <button type="button" data-group="cvd" data-multi="1" data-value="PAD">PAD</button>
+            <button type="button" data-group="cvd" data-multi="1" data-value="Recent ACS <6m">Recent ACS &lt;6m</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">11. Cerebrovascular</div>
+          <div class="pills" role="group" aria-label="Cerebrovascular disease">
+            <button type="button" data-group="cerebro" data-value="None">None</button>
+            <button type="button" data-group="cerebro" data-value="Prior TIA">Prior TIA</button>
+            <button type="button" data-group="cerebro" data-value="Prior Stroke >6m">Prior Stroke &gt;6m</button>
+            <button type="button" data-group="cerebro" data-value="Recent Stroke/TIA <6m">Recent Stroke/TIA &lt;6m</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">12. Autonomic neuropathy</div>
+          <div class="pills" role="group" aria-label="Diabetic autonomic neuropathy">
+            <button type="button" data-group="dan" data-value="None">None</button>
+            <button type="button" data-group="dan" data-value="Suspected (Postural/Gastroparesis/Tachycardia)">Suspected (Postural/Gastroparesis/Tachycardia)</button>
+            <button type="button" data-group="dan" data-value="Confirmed CAN/DAN">Confirmed CAN/DAN</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">13. Sleep apnoea</div>
+          <div class="pills" role="group" aria-label="Sleep apnoea">
+            <button type="button" data-group="osas" data-value="None / Low Risk">None / Low Risk</button>
+            <button type="button" data-group="osas" data-value="Suspected">Suspected</button>
+            <button type="button" data-group="osas" data-value="Diagnosed - Untreated">Diagnosed - Untreated</button>
+            <button type="button" data-group="osas" data-value="Diagnosed - On CPAP">Diagnosed - On CPAP</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="name">14. Foot ulcers</div>
+          <div>
+            <div class="pills" role="group" aria-label="Diabetic foot ulcers">
+              <button type="button" data-group="foot" data-value="None">None</button>
+              <button type="button" data-group="foot" data-value="Healed ulcer" title="Previous ulcer, skin now intact">Healed ulcer</button>
+              <button type="button" data-group="foot" data-value="Active ulcer" title="Current ulcer, not limb-threatening">Active ulcer</button>
+              <button type="button" data-group="foot" data-value="Limb-threatening" title="Deep infection, gangrene, or acute Charcot">Limb-threatening</button>
+            </div>
+            <label class="check" for="amputation"><input id="amputation" type="checkbox"> Lower limb / foot amputation</label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="name" for="icdInput">15. Other disease</label>
+          <div class="icd" id="icdBox">
+            <div class="icd-row">
+              <div id="icdChips" class="icd-chips"></div>
+              <input id="icdInput" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="icdList" aria-label="Other disease">
+            </div>
+            <ul id="icdList" class="icd-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card tone-med">
+      <div class="card-head">
+        <h2>D · Current medication</h2>
+        <span class="meta">UK BNF 6.1, 2.12 and 2.5 · blank = not recorded</span>
+      </div>
+      <div class="body">
+        <div class="glp-panel">
+          <label for="medGlp">GLP-1 receptor agonist / dual GIP and GLP-1
+            <select id="medGlp">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="GLP-1 receptor agonists">
+                <option>Semaglutide s/c (Ozempic)</option>
+                <option>Semaglutide oral (Rybelsus)</option>
+                <option>Semaglutide weight-management (Wegovy)</option>
+                <option>Dulaglutide (Trulicity)</option>
+                <option>Liraglutide (Victoza)</option>
+                <option>Liraglutide weight-management (Saxenda)</option>
+                <option>Exenatide modified-release (Bydureon)</option>
+                <option>Lixisenatide (Lyxumia)</option>
+              </optgroup>
+              <optgroup label="Dual GIP/GLP-1 receptor agonist">
+                <option>Tirzepatide (Mounjaro)</option>
+              </optgroup>
+              <optgroup label="Fixed-ratio combination with insulin">
+                <option>Insulin degludec/liraglutide (Xultophy)</option>
+                <option>Insulin glargine/lixisenatide (Suliqua)</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medGlpStart">GLP-1 / GIP course
+            <select id="medGlpStart">
+              <option value="">Not recorded</option>
+              <option>Established</option>
+              <option>Started or increased within 6 months</option>
+            </select>
+          </label>
+        </div>
+        <div class="med-grid">
+          <label for="medMetformin" title="BNF 6.1.2 biguanides">Metformin
+            <select id="medMetformin">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Metformin</option>
+              <option>Metformin modified-release</option>
+            </select>
+          </label>
+          <label for="medSu" title="BNF 6.1.2 sulfonylureas and meglitinides">Sulfonylurea
+            <select id="medSu">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="Sulfonylureas">
+                <option>Gliclazide</option>
+                <option>Gliclazide modified-release</option>
+                <option>Glimepiride</option>
+                <option>Glipizide</option>
+                <option>Tolbutamide</option>
+                <option>Glibenclamide</option>
+              </optgroup>
+              <optgroup label="Meglitinides">
+                <option>Repaglinide</option>
+                <option>Nateglinide</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medDpp4" title="BNF 6.1.2 DPP-4 inhibitors">DPP-4i
+            <select id="medDpp4">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Sitagliptin</option>
+              <option>Linagliptin</option>
+              <option>Alogliptin</option>
+              <option>Saxagliptin</option>
+              <option>Vildagliptin</option>
+              <option>Sitagliptin/metformin</option>
+              <option>Linagliptin/metformin</option>
+              <option>Alogliptin/metformin</option>
+              <option>Vildagliptin/metformin</option>
+              <option>Saxagliptin/metformin</option>
+            </select>
+          </label>
+          <label for="medSglt2" title="BNF 6.1.2 SGLT2 inhibitors">SGLT2i
+            <select id="medSglt2">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Dapagliflozin (Forxiga)</option>
+              <option>Empagliflozin (Jardiance)</option>
+              <option>Canagliflozin (Invokana)</option>
+              <option>Ertugliflozin (Steglatro)</option>
+              <optgroup label="With metformin">
+                <option>Dapagliflozin/metformin (Xigduo)</option>
+                <option>Empagliflozin/metformin (Synjardy)</option>
+                <option>Canagliflozin/metformin (Vokanamet)</option>
+              </optgroup>
+              <optgroup label="With a DPP-4 inhibitor">
+                <option>Empagliflozin/linagliptin (Glyxambi)</option>
+                <option>Dapagliflozin/saxagliptin (Qtern)</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medBasal" title="BNF 6.1.1 basal and intermediate insulin">Basal insulin
+            <select id="medBasal">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="Long-acting">
+                <option>Insulin glargine 100 units/mL (Lantus / Abasaglar / Semglee)</option>
+                <option>Insulin glargine 300 units/mL (Toujeo)</option>
+                <option>Insulin degludec (Tresiba)</option>
+                <option>Insulin detemir (Levemir)</option>
+              </optgroup>
+              <optgroup label="Intermediate">
+                <option>Isophane insulin (Insulatard / Humulin I)</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medPrandial" title="BNF 6.1.1 mealtime and biphasic insulin">Mealtime insulin
+            <select id="medPrandial">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="Mealtime">
+                <option>Insulin aspart (NovoRapid / Trurapi)</option>
+                <option>Faster insulin aspart (Fiasp)</option>
+                <option>Insulin lispro (Humalog / Admelog)</option>
+                <option>Faster insulin lispro (Lyumjev)</option>
+                <option>Insulin glulisine (Apidra)</option>
+                <option>Soluble insulin (Actrapid / Humulin S)</option>
+              </optgroup>
+              <optgroup label="Biphasic">
+                <option>Biphasic insulin aspart (NovoMix 30)</option>
+                <option>Biphasic insulin lispro (Humalog Mix25)</option>
+                <option>Biphasic insulin lispro (Humalog Mix50)</option>
+                <option>Biphasic isophane insulin (Humulin M3)</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medOther" title="BNF 6.1.2 thiazolidinediones and acarbose">Other glucose
+            <select id="medOther">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Pioglitazone</option>
+              <option>Pioglitazone/metformin (Competact)</option>
+              <option>Acarbose</option>
+            </select>
+          </label>
+          <label for="medStatin" title="BNF 2.12 statins">Statin
+            <select id="medStatin">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Atorvastatin</option>
+              <option>Rosuvastatin</option>
+              <option>Simvastatin</option>
+              <option>Pravastatin</option>
+              <option>Fluvastatin</option>
+              <option>Pitavastatin</option>
+            </select>
+          </label>
+          <label for="medLipid" title="BNF 2.12 other lipid-lowering drugs, including fenofibrate">Other lipid
+            <select id="medLipid">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <option>Ezetimibe</option>
+              <option>Fenofibrate</option>
+              <option>Bezafibrate</option>
+              <option>Bempedoic acid</option>
+              <option>Bempedoic acid/ezetimibe</option>
+              <option>Icosapent ethyl</option>
+              <option>Evolocumab</option>
+              <option>Alirocumab</option>
+              <option>Inclisiran</option>
+            </select>
+          </label>
+          <label for="medAce" title="BNF 2.5.5 ACE inhibitors, angiotensin receptor blockers and ARNI">ACEi / ARB
+            <select id="medAce">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="ACE inhibitors">
+                <option>Ramipril</option>
+                <option>Lisinopril</option>
+                <option>Perindopril</option>
+                <option>Enalapril</option>
+                <option>Captopril</option>
+                <option>Fosinopril</option>
+                <option>Quinapril</option>
+                <option>Trandolapril</option>
+                <option>Imidapril</option>
+              </optgroup>
+              <optgroup label="Angiotensin receptor blockers">
+                <option>Losartan</option>
+                <option>Candesartan</option>
+                <option>Irbesartan</option>
+                <option>Valsartan</option>
+                <option>Telmisartan</option>
+                <option>Olmesartan</option>
+                <option>Azilsartan</option>
+              </optgroup>
+              <optgroup label="ARNI">
+                <option>Sacubitril/valsartan (Entresto)</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medCcb" title="BNF 2.5 and 2.2 calcium-channel blockers and diuretics">CCB / diuretic
+            <select id="medCcb">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="Calcium-channel blockers">
+                <option>Amlodipine</option>
+                <option>Felodipine</option>
+                <option>Lercanidipine</option>
+                <option>Nifedipine</option>
+                <option>Diltiazem</option>
+                <option>Verapamil</option>
+              </optgroup>
+              <optgroup label="Diuretics">
+                <option>Indapamide</option>
+                <option>Bendroflumethiazide</option>
+                <option>Chlortalidone</option>
+                <option>Furosemide</option>
+                <option>Bumetanide</option>
+                <option>Torasemide</option>
+              </optgroup>
+            </select>
+          </label>
+          <label for="medOtherBp" title="BNF 2.4 beta-blockers, mineralocorticoid receptor antagonists and doxazosin">Other BP drug
+            <select id="medOtherBp">
+              <option value="">Not recorded</option>
+              <option>None</option>
+              <optgroup label="Beta-blockers">
+                <option>Bisoprolol</option>
+                <option>Atenolol</option>
+                <option>Carvedilol</option>
+                <option>Nebivolol</option>
+                <option>Metoprolol</option>
+              </optgroup>
+              <optgroup label="Mineralocorticoid receptor antagonists">
+                <option>Spironolactone</option>
+                <option>Eplerenone</option>
+                <option>Finerenone (Kerendia)</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option>Doxazosin</option>
+              </optgroup>
+            </select>
+          </label>
+        </div>
+      </div>
+    </section>
+  </form>
+
+  <section class="right">
+    <section class="card alerts-card tone-alerts">
+      <div class="card-head"><h2 id="alertTitle">1. Prioritised clinical alerts</h2></div>
+      <div id="badges"></div>
+      <div id="alerts" aria-live="polite"></div>
+    </section>
+    <section class="card out-card tone-epr">
+      <div class="card-head">
+        <h2>2. EPR clinic summary</h2>
+        <button type="button" class="btn onhead" id="copyEpr">Copy for EPR</button>
+      </div>
+      <div class="body"><textarea id="epr" readonly spellcheck="false"></textarea></div>
+    </section>
+    <section class="card out-card tone-gp">
+      <div class="card-head">
+        <h2>3. Primary care QOF and systemic action</h2>
+        <button type="button" class="btn onhead" id="copyGp">Copy for GP Letter</button>
+      </div>
+      <div class="body"><textarea id="gp" readonly spellcheck="false"></textarea></div>
+    </section>
+    <section class="card tone-session">
+      <div class="card-head">
+        <h2>4. Session audit</h2>
+        <span class="meta" id="sessionCount">Session: 0 cases · this tab only</span>
+      </div>
+      <div class="body btn-row">
+        <button type="button" class="btn" id="logCase">Log Case to Session</button>
+        <button type="button" class="btn secondary" id="clearForm">Clear Form</button>
+        <button type="button" class="btn" id="exportCsv">Export Audit Excel</button>
+      </div>
+    </section>
+    <p class="footer">QI decision-support aid. Confirm against current NICE/QOF and local protocol before acting.</p>
+  </section>
+</main>
+<script>
+(function () {
+  'use strict';
+
+  /* PURE START */
+  var CSV_COLUMNS = [
+    'timestamp_local', 'qi_id', 'dr_grade_right', 'dr_grade_left', 'maculopathy_right', 'maculopathy_left', 'cst_right_um', 'cst_left_um', 'ocular_plan',
+    'diabetes_type', 'duration_years', 'hba1c_current', 'hba1c_previous', 'hba1c_interval_months',
+    'hba1c_delta', 'frailty', 'bmi', 'ethnicity_adjustment', 'height_cm', 'weight_kg', 'sbp', 'dbp',
+    'bp_target', 'lipid_status', 'hard_exudates', 'egfr', 'uacr', 'anaemia_status', 'hb_gl',
+    'smoking', 'vba_delivered', 'cvd', 'cerebrovascular', 'dan', 'osas', 'foot_ulcer', 'foot_amputation', 'other_disease',
+    'med_glp1', 'med_glp1_course', 'med_metformin', 'med_sulfonylurea', 'med_dpp4', 'med_sglt2',
+    'med_basal_insulin', 'med_prandial_insulin', 'med_other_glucose', 'med_statin', 'med_other_lipid',
+    'med_ace_arb', 'med_ccb_diuretic', 'med_other_bp', 'red_flags', 'amber_flags',
+    'caveat_flags', 'qof_codes', 'to_target_domains'
+  ];
+
+  var MICRO = 'Micro 3-30';
+  var MACRO = 'Macro >30';
+  var DAN_SUS = 'Suspected (Postural/Gastroparesis/Tachycardia)';
+  var DAN_CON = 'Confirmed CAN/DAN';
+  var LIPID_LEVELS = 'LDL \u2264 2.0 / non-HDL \u2264 2.6 mmol/L for secondary prevention';
+  var EARLY_TEXT = 'Rapid HbA1c drop (\u226520 mmol/mol in \u226412m) with active/severe retinopathy \u2014 high risk of early worsening (NICE NG242). Schedule 2\u20133 monthly surveillance.';
+  var LYING_TEXT = 'Check lying and standing BP before intensifying antihypertensives due to autonomic neuropathy / postural hypotension risk.';
+  var VEGF_TEXT = 'Recent thromboembolic event (<6m) \u2014 exercise caution with intravitreal anti-VEGF; consider macular laser or intravitreal steroid.';
+  var OSAS_TEXT = 'Suspected/untreated OSAS drives nocturnal hypoxia and treatment-resistant DMO. Recommend GP Epworth/STOP-BANG screening and sleep clinic referral (or CPAP adherence review).';
+  var GLP_TEXT = 'If initiating potent GLP-1/GIP agonists (e.g., semaglutide/tirzepatide), monitor HbA1c reduction velocity given active retinopathy.';
+  var SGLT2_WORDS = ['dapagliflozin', 'empagliflozin', 'canagliflozin', 'ertugliflozin'];
+  var GLP_WORDS = ['semaglutide', 'dulaglutide', 'liraglutide', 'exenatide', 'lixisenatide', 'tirzepatide'];
+  var POTENT_GLP_WORDS = ['semaglutide', 'tirzepatide'];
+  var ACE_WORDS = ['ramipril', 'lisinopril', 'perindopril', 'enalapril', 'captopril', 'fosinopril', 'quinapril', 'trandolapril', 'imidapril', 'losartan', 'candesartan', 'irbesartan', 'valsartan', 'telmisartan', 'olmesartan', 'azilsartan', 'sacubitril'];
+  var SU_WORDS = ['gliclazide', 'glimepiride', 'glipizide', 'tolbutamide', 'glibenclamide', 'repaglinide', 'nateglinide'];
+  var STATIN_WORDS = ['atorvastatin', 'rosuvastatin', 'simvastatin', 'pravastatin', 'fluvastatin', 'pitavastatin'];
+
+  function medValues(s) {
+    return [s.medGlp, s.medMetformin, s.medSu, s.medDpp4, s.medSglt2, s.medBasal, s.medPrandial, s.medOther, s.medStatin, s.medLipid, s.medAce, s.medCcb, s.medOtherBp];
+  }
+
+  function findMed(s, words) {
+    var fields = medValues(s);
+    for (var i = 0; i < fields.length; i++) {
+      var value = fields[i];
+      if (!value || value === 'None') continue;
+      var lower = value.toLowerCase();
+      for (var j = 0; j < words.length; j++) {
+        if (lower.indexOf(words[j]) !== -1) return value;
+      }
+    }
+    return '';
+  }
+
+  function medRecorded(s) {
+    return medValues(s).some(function (value) { return !!value; }) || !!s.medGlpStart;
+  }
+  var GP_CLEAR = 'Systemic parameters entered are at the relevant QOF/NICE targets. No additional primary care action is requested from this review.';
+
+  function num(v) {
+    if (v === null || v === undefined) return null;
+    var t = String(v).trim();
+    if (t === '') return null;
+    var n = Number(t);
+    return isFinite(n) ? n : null;
+  }
+
+  function round1(n) {
+    return Math.round(n * 10) / 10;
+  }
+
+  function yn(flag) {
+    return flag ? 'Yes' : 'No';
+  }
+
+  function uniq(list) {
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      if (out.indexOf(list[i]) === -1) out.push(list[i]);
+    }
+    return out;
+  }
+
+  function isQof(code) {
+    return /^(DM|CHOL|OB|SMOK|STIA)\d+/.test(code);
+  }
+
+  function qofLabel(codes) {
+    var q = [];
+    for (var i = 0; i < codes.length; i++) {
+      if (isQof(codes[i])) q.push(codes[i]);
+    }
+    q = uniq(q);
+    return q.length ? ' (QOF ' + q.join('/') + ')' : '';
+  }
+
+  function normalise(state) {
+    var s = state || {};
+    return {
+      qiId: s.qiId || '',
+      drRight: s.drRight || '',
+      drLeft: s.drLeft || '',
+      macRight: s.macRight || '',
+      macLeft: s.macLeft || '',
+      cstRight: s.cstRight || '',
+      cstLeft: s.cstLeft || '',
+      ocularPlan: s.ocularPlan || '',
+      diabetesType: s.diabetesType || '',
+      duration: s.duration || '',
+      hba1c: s.hba1c || '',
+      hba1cPrev: s.hba1cPrev || '',
+      hba1cInterval: s.hba1cInterval || '',
+      frailty: !!s.frailty,
+      bmi: s.bmi || '',
+      heightCm: s.heightCm || '',
+      weightKg: s.weightKg || '',
+      ethnicity: !!s.ethnicity,
+      sbp: s.sbp || '',
+      dbp: s.dbp || '',
+      lipid: s.lipid || '',
+      hardExudates: !!s.hardExudates,
+      egfr: s.egfr || '',
+      uacr: s.uacr || '',
+      anaemia: s.anaemia || '',
+      hb: s.hb || '',
+      smoking: s.smoking || '',
+      vba: !!s.vba,
+      cvd: Array.isArray(s.cvd) ? s.cvd.slice() : [],
+      cerebro: s.cerebro || '',
+      dan: s.dan || '',
+      osas: s.osas || '',
+      foot: s.foot || '',
+      amputation: !!s.amputation,
+      otherDisease: normaliseOther(s.otherDisease),
+      medGlp: s.medGlp || '',
+      medGlpStart: s.medGlpStart || '',
+      medMetformin: s.medMetformin || '',
+      medSu: s.medSu || '',
+      medDpp4: s.medDpp4 || '',
+      medSglt2: s.medSglt2 || '',
+      medBasal: s.medBasal || '',
+      medPrandial: s.medPrandial || '',
+      medOther: s.medOther || '',
+      medStatin: s.medStatin || '',
+      medLipid: s.medLipid || '',
+      medAce: s.medAce || '',
+      medCcb: s.medCcb || '',
+      medOtherBp: s.medOtherBp || ''
+    };
+  }
+
+  function cvdList(s) {
+    var raw = s.cvd.filter(function (item) { return !!item; });
+    var diseases = raw.filter(function (item) { return item !== 'None'; });
+    if (diseases.length) return diseases;
+    if (raw.indexOf('None') !== -1) return ['None'];
+    return [];
+  }
+
+  function bpRule(s) {
+    var egfr = num(s.egfr);
+    var cerebroActive = s.cerebro && s.cerebro !== 'None';
+    var tight = s.uacr === MACRO || (s.uacr === MICRO && egfr !== null && egfr < 60) || cerebroActive;
+    if (tight) {
+      return { label: '<130/80', sbpOver: function (v) { return v >= 130; }, dbpOver: function (v) { return v >= 80; } };
+    }
+    if (s.frailty) {
+      return { label: '<150/90', sbpOver: function (v) { return v >= 150; }, dbpOver: function (v) { return v >= 90; } };
+    }
+    return { label: '\u2264140/90', sbpOver: function (v) { return v > 140; }, dbpOver: function (v) { return v > 90; } };
+  }
+
+  function fmtBp(sbp, dbp) {
+    if (sbp === null && dbp === null) return 'not recorded';
+    return (sbp === null ? '\u2014' : String(sbp)) + '/' + (dbp === null ? '\u2014' : String(dbp));
+  }
+
+  function fmtDelta(delta) {
+    if (delta === null) return 'not recorded';
+    var rounded = round1(delta);
+    return (rounded > 0 ? '+' : '') + rounded;
+  }
+
+  function localStamp(d) {
+    function p(n) { return String(n).padStart(2, '0'); }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+  }
+
+  function csvEscape(value) {
+    var s = value == null ? '' : String(value);
+    if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function normaliseOther(list) {
+    if (!Array.isArray(list)) return [];
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i] || {};
+      var term = String(item.term || '').trim();
+      if (!term) continue;
+      out.push({ code: String(item.code || '').trim().toUpperCase(), term: term });
+    }
+    return out;
+  }
+
+  function otherDiseaseLine(list) {
+    if (!list || !list.length) return 'not recorded';
+    return list.map(function (item) {
+      return item.code ? item.code + ' ' + item.term : item.term;
+    }).join('; ');
+  }
+
+  function medSummary(s) {
+    var parts = [];
+    function addPart(label, value) {
+      if (value) parts.push(label + ' ' + value);
+    }
+    addPart('GLP-1/GIP', s.medGlp);
+    if (s.medGlp && s.medGlp !== 'None' && s.medGlpStart) parts.push('course ' + s.medGlpStart);
+    addPart('metformin', s.medMetformin);
+    addPart('sulfonylurea', s.medSu);
+    addPart('DPP-4', s.medDpp4);
+    addPart('SGLT2', s.medSglt2);
+    addPart('basal insulin', s.medBasal);
+    addPart('mealtime insulin', s.medPrandial);
+    addPart('other glucose-lowering', s.medOther);
+    addPart('statin', s.medStatin);
+    addPart('other lipid-lowering', s.medLipid);
+    addPart('ACEi/ARB', s.medAce);
+    addPart('CCB/diuretic', s.medCcb);
+    addPart('other BP drug', s.medOtherBp);
+    return parts.length ? parts.join('; ') : 'not recorded';
+  }
+
+  function blankNum(v) {
+    var n = num(v);
+    return n === null ? '' : String(n);
+  }
+
+  function eitherOf(first, second, values) {
+    return (first && values.indexOf(first) !== -1) || (second && values.indexOf(second) !== -1);
+  }
+
+  function eitherGrade(s, grades) {
+    return eitherOf(s.drRight, s.drLeft, grades);
+  }
+
+  function eitherMac(s, grades) {
+    return eitherOf(s.macRight, s.macLeft, grades);
+  }
+
+  function evaluate(state) {
+    var s = normalise(state);
+    var alerts = [];
+    var hba1c = num(s.hba1c);
+    var prev = num(s.hba1cPrev);
+    var interval = num(s.hba1cInterval);
+    var delta = (hba1c !== null && prev !== null) ? hba1c - prev : null;
+    var duration = num(s.duration);
+    var sbp = num(s.sbp);
+    var dbp = num(s.dbp);
+    var egfr = num(s.egfr);
+    var bmi = num(s.bmi);
+    var hb = num(s.hb);
+    var cvd = cvdList(s);
+    var cvdPresent = cvd.length > 0 && cvd[0] !== 'None';
+    var cerebroActive = !!(s.cerebro && s.cerebro !== 'None');
+    var danActive = s.dan === DAN_SUS || s.dan === DAN_CON;
+    var recentAcs = cvd.indexOf('Recent ACS <6m') !== -1;
+    var recentStroke = s.cerebro === 'Recent Stroke/TIA <6m';
+    var type2 = s.diabetesType === 'Type 2';
+    var type1Long = s.diabetesType === 'Type 1' && duration !== null && duration > 10;
+    var target = bpRule(s);
+    var glpName = findMed(s, GLP_WORDS);
+    var onGlp = !!glpName;
+    var onPotent = !!findMed(s, POTENT_GLP_WORDS);
+    var recentGlp = onGlp && s.medGlpStart === 'Started or increased within 6 months';
+    var activeRet = eitherGrade(s, ['R1', 'R2L', 'R2H', 'R3A', 'R3S']) || eitherMac(s, ['M1 Non-Centre', 'M1 Centre DMO']);
+    var sightThreat = eitherGrade(s, ['R2L', 'R2H', 'R3A']) || eitherMac(s, ['M1 Centre DMO']);
+    var sgltName = findMed(s, SGLT2_WORDS);
+    var aceName = findMed(s, ACE_WORDS);
+    var suName = findMed(s, SU_WORDS);
+    var statinName = findMed(s, STATIN_WORDS);
+    var fenoName = findMed(s, ['fenofibrate']);
+    var pioName = findMed(s, ['pioglitazone']);
+    var onInsulin = (s.medBasal && s.medBasal !== 'None') || (s.medPrandial && s.medPrandial !== 'None') || !!findMed(s, ['insulin']);
+    var hypoDrugs = [];
+    if (onInsulin) hypoDrugs.push(s.medBasal && s.medBasal !== 'None' ? s.medBasal : (s.medPrandial && s.medPrandial !== 'None' ? s.medPrandial : 'insulin'));
+    if (suName) hypoDrugs.push(suName);
+
+    function add(alert) {
+      alerts.push({
+        level: alert.level,
+        domains: alert.domains || [],
+        codes: alert.codes || [],
+        text: alert.text,
+        gp: alert.gp || '',
+        rank: alert.rank || 50
+      });
+    }
+
+    if (delta !== null && delta <= -20 && interval !== null && interval <= 12 &&
+        (eitherGrade(s, ['R2L', 'R2H', 'R3A']) || eitherMac(s, ['M1 Centre DMO']))) {
+      add({
+        level: 'red',
+        domains: ['glycaemia'],
+        codes: ['NG242'],
+        rank: 2,
+        text: EARLY_TEXT + (onGlp ? ' Current therapy includes ' + glpName + ', which can accelerate the fall in HbA1c.' : ''),
+        gp: 'Please avoid any further rapid reduction in HbA1c. A fall of ' + Math.abs(round1(delta)) + ' mmol/mol within ' + interval + ' months, with active or severe retinopathy, carries a high risk of early worsening. We will arrange 2-3 monthly retinal surveillance (NICE NG242).' + (onGlp ? ' Current therapy includes ' + glpName + '.' : '')
+      });
+    }
+
+    if (hba1c !== null && !s.frailty && hba1c > 58) {
+      add({
+        level: 'amber',
+        domains: ['glycaemia'],
+        codes: ['DM020'],
+        rank: 7,
+        text: 'HbA1c ' + hba1c + ' mmol/mol is above the QOF DM020 target (\u226458 mmol/mol).',
+        gp: 'HbA1c is ' + hba1c + ' mmol/mol, above the target of 58 mmol/mol. Please optimise glucose-lowering therapy (QOF DM020).'
+      });
+    } else if (hba1c !== null && s.frailty && hba1c > 75) {
+      add({
+        level: 'amber',
+        domains: ['glycaemia'],
+        codes: ['DM021'],
+        rank: 7,
+        text: 'HbA1c ' + hba1c + ' mmol/mol is above the relaxed frailty target (QOF DM021, \u226475 mmol/mol).',
+        gp: 'With moderate or severe frailty, HbA1c is ' + hba1c + ' mmol/mol, above the relaxed target of 75 mmol/mol. Please review (QOF DM021).'
+      });
+    }
+
+    if (danActive && hba1c !== null && hba1c < 53) {
+      add({
+        level: 'amber',
+        domains: ['dan'],
+        codes: [],
+        rank: 8,
+        text: 'Autonomic neuropathy with HbA1c below 53 mmol/mol: caution regarding hypoglycaemia unawareness (NICE NG17/NG28).' + (hypoDrugs.length ? ' Current treatment includes ' + hypoDrugs.join(' and ') + ', which increase' + (hypoDrugs.length > 1 ? '' : 's') + ' the risk of severe hypoglycaemia.' : ''),
+        gp: 'HbA1c is below 53 mmol/mol in the presence of suspected or confirmed autonomic neuropathy. Please review for hypoglycaemia unawareness (NICE NG17/NG28).' + (hypoDrugs.length ? ' Current treatment includes ' + hypoDrugs.join(' and ') + '.' : '')
+      });
+    }
+
+    var sbpOver = sbp !== null && target.sbpOver(sbp);
+    var dbpOver = dbp !== null && target.dbpOver(dbp);
+    var severeBp = (sbp !== null && sbp >= 180) || (dbp !== null && dbp >= 120);
+    if (sbpOver || dbpOver) {
+      var lying = danActive ? ' ' + LYING_TEXT : '';
+      add({
+        level: severeBp ? 'red' : 'amber',
+        domains: ['bp'],
+        codes: ['DM036'],
+        rank: 4,
+        text: 'Blood pressure ' + fmtBp(sbp, dbp) + ' mmHg exceeds target ' + target.label + ' mmHg and is a driver of DMO/DR progression (QOF DM036).' + lying,
+        gp: 'Blood pressure is ' + fmtBp(sbp, dbp) + ' mmHg, above the target of ' + target.label + ' mmHg, and is driving diabetic retinopathy and macular oedema. Please optimise treatment (QOF DM036).' + lying
+      });
+    }
+
+    var lipidNot = s.lipid === 'Not on Statin';
+    var lipidAbove = s.lipid === 'On Statin - Above Target';
+    if (lipidNot || lipidAbove) {
+      var lipidCodes = [];
+      if (lipidNot && (type2 || type1Long)) lipidCodes.push('DM034');
+      if (cvdPresent || cerebroActive) lipidCodes.push('DM035', 'CHOL004');
+      if (lipidAbove && lipidCodes.indexOf('CHOL004') === -1) lipidCodes.push('CHOL004');
+      var reasons = [];
+      if (type2 && lipidNot) reasons.push('type 2 diabetes');
+      if (type1Long) reasons.push('type 1 diabetes for more than 10 years');
+      if (cvdPresent || cerebroActive) reasons.push('established cardiovascular or cerebrovascular disease');
+      var lipidText = (lipidNot ? 'Not on a statin. ' : 'On a statin but above target. ') + LIPID_LEVELS + '.';
+      if (reasons.length) lipidText += ' Indicated with ' + reasons.join(', ') + '.';
+      if (s.hardExudates) lipidText += ' Macular hard exudates are present \u2014 lipid optimisation is a priority.';
+      var lipidGp = (lipidNot
+        ? 'This patient is not on a statin. Please review the indication for statin therapy, aiming for LDL \u2264 2.0 mmol/L or non-HDL \u2264 2.6 mmol/L where secondary prevention applies'
+        : 'Lipids remain above target on a statin. Please intensify lipid-lowering therapy towards LDL \u2264 2.0 mmol/L or non-HDL \u2264 2.6 mmol/L where secondary prevention applies')
+        + (s.hardExudates ? ', noting macular hard exudates' : '')
+        + qofLabel(lipidCodes) + '.';
+      add({
+        level: s.hardExudates ? 'red' : 'amber',
+        domains: ['lipids'],
+        codes: lipidCodes,
+        rank: 6,
+        text: lipidText,
+        gp: lipidGp
+      });
+    } else if (s.hardExudates) {
+      add({
+        level: 'amber',
+        domains: ['lipids'],
+        codes: [],
+        rank: 6,
+        text: 'Macular hard exudates are present. Please review lipid intensity.',
+        gp: 'Macular hard exudates are present. Please review whether lipid-lowering therapy can be intensified.'
+      });
+    }
+
+    if (type2 && eitherGrade(s, ['R1', 'R2L', 'R2H', 'R3A']) && !fenoName) {
+      add({
+        level: 'amber',
+        domains: ['lipids'],
+        codes: ['NG242'],
+        rank: 9,
+        text: 'Type 2 diabetes with retinopathy (NICE NG242): consider fenofibrate alongside a statin.',
+        gp: 'In view of type 2 diabetes with diabetic retinopathy, please consider fenofibrate alongside statin therapy (NICE NG242).'
+      });
+    }
+
+    var renalBits = [];
+    if (egfr !== null && egfr < 45) renalBits.push('eGFR ' + egfr + ' mL/min/1.73m\u00B2');
+    if (s.uacr === MACRO) renalBits.push('macroalbuminuria');
+    function medClass(name, noneSelected) {
+      if (name) return 'already prescribed ' + name;
+      if (noneSelected) return 'not currently prescribed';
+      return 'not recorded, please confirm';
+    }
+    if (renalBits.length) {
+      var renalKnown = !!aceName || s.medAce === 'None' || !!sgltName || s.medSglt2 === 'None';
+      var renalDrug = renalKnown
+        ? ' Renin-angiotensin blockade: ' + medClass(aceName, s.medAce === 'None') + '. SGLT2 inhibitor: ' + medClass(sgltName, s.medSglt2 === 'None') + '.'
+        : ' Recommend GP/renal review and ACEi/ARB & SGLT2i check (DM006).';
+      var renalGpDrug = renalKnown
+        ? ' Renin-angiotensin blockade is ' + medClass(aceName, s.medAce === 'None') + ', and an SGLT2 inhibitor is ' + medClass(sgltName, s.medSglt2 === 'None') + '.'
+        : ' Please confirm an ACEi or ARB and an SGLT2 inhibitor are in place (QOF DM006).';
+      add({
+        level: 'red',
+        domains: ['renal'],
+        codes: ['DM006'],
+        rank: 3,
+        text: 'Severe renal impairment/proteinuria (' + renalBits.join(', ') + ') causes systemic fluid retention driving refractory DMO.' + renalDrug,
+        gp: 'Please arrange GP or renal review. ' + renalBits.join(' and ') + ' may drive refractory macular oedema through fluid retention.' + renalGpDrug
+      });
+    }
+    if (s.uacr === MICRO) {
+      var microKnown = !!aceName || s.medAce === 'None' || !!sgltName || s.medSglt2 === 'None';
+      add({
+        level: 'amber',
+        domains: ['renal'],
+        codes: [],
+        rank: 10,
+        text: 'Microalbuminuria (uACR 3-30). ' + (microKnown
+          ? 'Renin-angiotensin blockade: ' + medClass(aceName, s.medAce === 'None') + '. SGLT2 inhibitor: ' + medClass(sgltName, s.medSglt2 === 'None') + '.'
+          : 'Prompt ACEi/ARB and an SGLT2 inhibitor.'),
+        gp: 'Urine ACR is in the microalbuminuria range. ' + (microKnown
+          ? 'Renin-angiotensin blockade is ' + medClass(aceName, s.medAce === 'None') + ', and an SGLT2 inhibitor is ' + medClass(sgltName, s.medSglt2 === 'None') + '.'
+          : 'Please confirm an ACEi or ARB and review an SGLT2 inhibitor.')
+      });
+    }
+    if (s.uacr === 'Overdue >12m') {
+      add({
+        level: 'amber',
+        domains: ['renal'],
+        codes: ['DM037'],
+        rank: 10,
+        text: 'uACR overdue >12 months. Annual QOF DM037 (8 care processes) uACR check is due.',
+        gp: 'Urine ACR has not been checked for over 12 months. Please arrange the annual uACR as part of the 8 care processes (QOF DM037).'
+      });
+    }
+
+    if (bmi !== null) {
+      var obesityCut = s.ethnicity ? 27.5 : 30;
+      var severeCut = s.ethnicity ? 32.5 : 35;
+      if (bmi >= obesityCut) {
+        var severe = bmi >= severeCut;
+        var band = severe ? 'severe obesity' : 'obesity';
+        var ethnic = s.ethnicity ? ' (ethnicity-adjusted, NICE NG246)' : ' (NICE NG246)';
+        add({
+          level: 'amber',
+          domains: ['bmi'],
+          codes: ['OB004', 'OB005'],
+          rank: 11,
+        text: 'BMI ' + bmi + ' kg/m\u00B2 meets the ' + band + ' threshold' + ethnic + '. Recommend primary care weight management (OB004/005 / NHS Type 2 Path to Remission).' + (onGlp && activeRet ? '' : ' ' + (onGlp ? 'Already prescribed ' + glpName + '. Monitor HbA1c reduction velocity if retinopathy is present (NICE NG242).' : GLP_TEXT)),
+        gp: 'BMI is ' + bmi + ' kg/m\u00B2 (' + band + (s.ethnicity ? ', ethnicity-adjusted threshold' : '') + '). Please offer primary care weight management, including the NHS Type 2 Path to Remission where appropriate (QOF OB004/OB005, NICE NG246).' + (onGlp && activeRet ? '' : ' ' + (onGlp ? 'Already prescribed ' + glpName + '. Please monitor the speed of HbA1c reduction if retinopathy is present (NICE NG242).' : GLP_TEXT))
+        });
+      }
+    }
+
+    if (s.anaemia === 'Untreated Anaemia' || (hb !== null && hb < 110)) {
+      var hbBit = hb !== null ? ' (Hb ' + hb + ' g/L)' : '';
+      var anaemiaLead = s.anaemia === 'Untreated Anaemia'
+        ? 'Untreated anaemia' + hbBit
+        : 'Hb ' + hb + ' g/L is below 110 g/L';
+      add({
+        level: 'amber',
+        domains: ['anaemia'],
+        codes: [],
+        rank: 12,
+        text: anaemiaLead + ' \u2014 retinal hypoxia may aggravate ischaemia and DMO (NICE NG203, NG28).',
+        gp: 'Please investigate and treat anaemia' + hbBit + ', which may aggravate retinal hypoxia, ischaemia, and macular oedema (NICE NG203/NG28).'
+      });
+    }
+    if (s.anaemia === 'On Iron / ESA') {
+      add({
+        level: 'caveat',
+        domains: ['anaemia'],
+        codes: ['DM020', 'DM021'],
+        rank: 16,
+        text: 'On iron / ESA: altered red cell turnover can make HbA1c readings unreliable (DM020/DM021).',
+        gp: 'This patient is on iron or an erythropoiesis-stimulating agent. Altered red-cell turnover can make HbA1c unreliable for QOF DM020/DM021 (NICE NG203/NG28).'
+      });
+    }
+
+    if (s.smoking === 'Current Smoker') {
+      add({
+        level: 'amber',
+        domains: ['smoking'],
+        codes: ['SMOK004'],
+        rank: 13,
+        text: 'Current smoker. ' + (s.vba ? 'Very brief advice was delivered in clinic. ' : 'Very brief advice has not yet been recorded. ') + 'Refer to the NHS Stop Smoking Service (QOF SMOK004, NICE NG209).',
+        gp: 'Please refer to the NHS Stop Smoking Service (QOF SMOK004, NICE NG209).' + (s.vba ? ' Very brief advice was given in the eye clinic.' : '')
+      });
+    }
+
+    if (recentAcs || recentStroke) {
+      var eventDomains = [];
+      if (recentAcs) eventDomains.push('cvd');
+      if (recentStroke) eventDomains.push('cerebro');
+      add({
+        level: 'red',
+        domains: eventDomains,
+        codes: [],
+        rank: 1,
+        text: VEGF_TEXT,
+        gp: 'There has been a thromboembolic event within the last 6 months. We will exercise caution with intravitreal anti-VEGF and will consider macular laser or intravitreal steroid where appropriate.'
+      });
+    }
+
+    if (cvdPresent || cerebroActive) {
+      var secCodes = [];
+      var what = [];
+      var secDomains = [];
+      if (cvdPresent) {
+        secCodes.push('DM035', 'CHOL004');
+        what.push('cardiovascular disease (' + cvd.join(', ') + ')');
+        secDomains.push('cvd');
+      }
+      if (cerebroActive) {
+        secCodes.push('STIA007', 'CHOL004');
+        what.push('cerebrovascular disease (' + s.cerebro + ')');
+        secDomains.push('cerebro');
+      }
+      var secListed = uniq(secCodes);
+      add({
+        level: 'amber',
+        domains: secDomains,
+        codes: secListed,
+        rank: 14,
+        text: 'Established ' + what.join(' and ') + '. Confirm the secondary prevention bundle (' + secListed.join('/') + ').',
+        gp: 'Please confirm the secondary prevention bundle is in place' + qofLabel(secListed) + ' for ' + what.join(' and ') + '.'
+      });
+    }
+
+    if (danActive) {
+      add({
+        level: 'amber',
+        domains: ['dan'],
+        codes: [],
+        rank: 15,
+        text: 'Suspected or confirmed cardiac autonomic neuropathy: high silent CVD risk. Check lying and standing blood pressure. Poor pharmacological mydriasis is possible.',
+        gp: 'Autonomic neuropathy is suspected or confirmed, with a high risk of silent cardiovascular disease. Please check lying and standing blood pressure before intensifying antihypertensives (NICE NG17/NG28).'
+      });
+    }
+
+    if (s.osas === 'Suspected' || s.osas === 'Diagnosed - Untreated') {
+      var osasRed = eitherMac(s, ['M1 Non-Centre', 'M1 Centre DMO']) || eitherGrade(s, ['R2L', 'R2H', 'R3A', 'R3S']);
+      add({
+        level: osasRed ? 'red' : 'amber',
+        domains: ['osas'],
+        codes: ['NG202'],
+        rank: 5,
+        text: OSAS_TEXT,
+        gp: 'Suspected or untreated obstructive sleep apnoea may drive nocturnal hypoxia and treatment-resistant macular oedema. Please complete Epworth or STOP-BANG screening and refer to a sleep clinic, or review CPAP adherence (NICE NG202).'
+      });
+    }
+
+    var padPresent = cvd.indexOf('PAD') !== -1;
+    var footNeuro = danActive ? ' Peripheral or autonomic neuropathy increases ulcer risk.' : '';
+    var footPad = padPresent ? ' Coexistent peripheral arterial disease indicates neuro-ischaemic foot disease.' : '';
+    var ampNote = s.amputation ? ' Previous lower-limb or foot amputation is also recorded.' : '';
+    var ampGp = s.amputation ? ' A previous lower-limb or foot amputation is recorded; please also confirm prosthetic or rehabilitation follow-up.' : '';
+    if (s.foot === 'Limb-threatening') {
+      add({
+        level: 'red',
+        domains: ['foot'],
+        codes: [],
+        rank: 2,
+        text: 'Limb-threatening diabetic foot disease (deep infection, gangrene, or acute Charcot). Arrange same-day multidisciplinary foot assessment (NICE NG19).' + footNeuro + footPad + ampNote,
+        gp: 'There are limb-threatening diabetic foot features. Please arrange same-day multidisciplinary foot team assessment (NICE NG19).' + (padPresent ? ' Peripheral arterial disease is also recorded, so please treat this as neuro-ischaemic disease.' : '') + ampGp
+      });
+    } else if (s.foot === 'Active ulcer') {
+      add({
+        level: 'red',
+        domains: ['foot'],
+        codes: [],
+        rank: 6,
+        text: 'Active diabetic foot ulcer. Refer to the multidisciplinary foot team within 1 working day if not already under their care (NICE NG19). Ulceration marks advanced microvascular disease.' + footNeuro + footPad + ampNote,
+        gp: 'There is an active diabetic foot ulcer. Please ensure referral to the multidisciplinary foot team within 1 working day if this is not already in place (NICE NG19).' + (padPresent ? ' Peripheral arterial disease is also recorded.' : '') + ampGp
+      });
+    } else if (s.foot === 'Healed ulcer') {
+      add({
+        level: 'amber',
+        domains: ['foot'],
+        codes: [],
+        rank: 16,
+        text: (s.amputation
+          ? 'Previous diabetic foot ulcer and lower-limb or foot amputation. High recurrence risk and a marker of advanced microvascular and macrovascular disease. Confirm foot protection follow-up and prosthetic or rehabilitation care (NICE NG19).'
+          : 'Previous diabetic foot ulcer. High recurrence risk and a marker of advanced microvascular disease. Confirm ongoing foot protection service follow-up (NICE NG19).') + footNeuro,
+        gp: s.amputation
+          ? 'There is a history of diabetic foot ulceration and lower-limb or foot amputation. Please confirm foot protection service follow-up, an up-to-date foot risk classification, and prosthetic or rehabilitation care (NICE NG19).'
+          : 'There is a history of diabetic foot ulceration. Please confirm the patient remains under the foot protection service, with an up-to-date foot risk classification (NICE NG19).'
+      });
+    } else if (s.amputation) {
+      add({
+        level: 'amber',
+        domains: ['foot'],
+        codes: [],
+        rank: 16,
+        text: 'Previous lower-limb or foot amputation. This confers a high risk of further ulceration and marks advanced microvascular and macrovascular disease. Confirm foot protection follow-up and prosthetic or rehabilitation care (NICE NG19).' + footNeuro + footPad,
+        gp: 'There is a previous lower-limb or foot amputation. Please confirm the patient remains under the foot protection service and has appropriate prosthetic or rehabilitation follow-up (NICE NG19).' + (padPresent ? ' Peripheral arterial disease is also recorded.' : '')
+      });
+    }
+
+    if (onGlp && activeRet) {
+      var glpWhy = onPotent
+        ? ' Semaglutide and tirzepatide product information advise closer retinal monitoring, because a rapid fall in glucose can worsen diabetic retinopathy.'
+        : ' A rapid fall in glucose during GLP-1 therapy can worsen diabetic retinopathy.';
+      add({
+        level: 'amber',
+        domains: ['glycaemia'],
+        codes: ['NG242'],
+        rank: sightThreat && recentGlp ? 5 : 9,
+        text: (recentGlp ? 'Recently started or dose-increased ' : 'Current ') + glpName + ' with diabetic retinopathy or maculopathy.' + glpWhy + (sightThreat ? ' Arrange closer surveillance while HbA1c is falling (NICE NG242).' : ' Confirm retinal follow-up is in place (NICE NG242).'),
+        gp: 'The patient is prescribed ' + glpName + (recentGlp ? ', started or increased within the last 6 months,' : '') + ' and has diabetic retinopathy or maculopathy. Please avoid any further rapid reduction in HbA1c. Retinal surveillance will be kept under review (product information, NICE NG242).'
+      });
+    }
+
+    if (pioName && (eitherMac(s, ['M1 Non-Centre', 'M1 Centre DMO']) || cvd.indexOf('Heart Failure') !== -1)) {
+      var pioBits = [];
+      if (eitherMac(s, ['M1 Non-Centre', 'M1 Centre DMO'])) pioBits.push('can cause or worsen diabetic macular oedema (MHRA)');
+      if (cvd.indexOf('Heart Failure') !== -1) pioBits.push('is not recommended in heart failure because of fluid retention (NICE NG28)');
+      add({
+        level: 'amber',
+        domains: ['glycaemia'],
+        codes: [],
+        rank: 12,
+        text: pioName + ' ' + pioBits.join(', and ') + '. Please review whether it should continue.',
+        gp: 'Please review ' + pioName + ', which ' + pioBits.join(', and ') + '.'
+      });
+    }
+
+    if (findMed(s, ['saxagliptin']) && cvd.indexOf('Heart Failure') !== -1) {
+      add({
+        level: 'amber',
+        domains: ['cvd'],
+        codes: [],
+        rank: 12,
+        text: 'Saxagliptin is not recommended in heart failure. Ask primary care to review the DPP-4 inhibitor (MHRA).',
+        gp: 'Saxagliptin is not recommended in heart failure. Please review the DPP-4 inhibitor (MHRA).'
+      });
+    }
+
+    if (statinName && (s.lipid === 'Not on Statin' || s.lipid === 'Intolerant/Declined')) {
+      add({
+        level: 'caveat',
+        domains: ['lipids'],
+        codes: [],
+        rank: 17,
+        text: 'Current medication includes ' + statinName + ', while lipid status is recorded as ' + s.lipid + '. Reconcile the statin history before acting on the lipid indicators.',
+        gp: 'The medication list includes ' + statinName + ', but lipid status was recorded as ' + s.lipid + '. Please reconcile the statin history.'
+      });
+    }
+
+    var levelOrder = { red: 0, amber: 1, caveat: 2 };
+    alerts.sort(function (a, b) {
+      return (levelOrder[a.level] - levelOrder[b.level]) || (a.rank - b.rank);
+    });
+
+    var domainOrder = ['glycaemia', 'bp', 'lipids', 'renal', 'bmi', 'anaemia', 'smoking', 'cvd', 'cerebro', 'dan', 'osas', 'foot'];
+    var domainLabel = {
+      glycaemia: 'HbA1c', bp: 'BP', lipids: 'Lipids', renal: 'Renal', bmi: 'BMI', anaemia: 'Anaemia',
+      smoking: 'Smoking', cvd: 'CVD', cerebro: 'Stroke/TIA', dan: 'DAN', osas: 'OSAS', foot: 'Foot'
+    };
+    function answered(key) {
+      if (key === 'glycaemia') return hba1c !== null;
+      if (key === 'bp') return sbp !== null || dbp !== null;
+      if (key === 'lipids') return s.lipid === 'Controlled on Statin';
+      if (key === 'renal') return egfr !== null || !!s.uacr;
+      if (key === 'bmi') return bmi !== null;
+      if (key === 'anaemia') return s.anaemia === 'Normal Hb' || (hb !== null && hb >= 110 && s.anaemia !== 'Untreated Anaemia' && s.anaemia !== 'On Iron / ESA' && s.anaemia !== 'Not Checked');
+      if (key === 'smoking') return !!s.smoking;
+      if (key === 'cvd') return cvd.length > 0;
+      if (key === 'cerebro') return !!s.cerebro;
+      if (key === 'dan') return !!s.dan;
+      if (key === 'osas') return !!s.osas;
+      if (key === 'foot') return s.foot === 'None' && !s.amputation;
+      return false;
+    }
+    var toTarget = [];
+    domainOrder.forEach(function (key) {
+      var hit = alerts.some(function (alert) { return alert.domains.indexOf(key) !== -1; });
+      if (answered(key) && !hit) toTarget.push(domainLabel[key]);
+    });
+
+    var gpParts = [];
+    alerts.forEach(function (alert) { if (alert.gp) gpParts.push(alert.gp); });
+    var clinicallyEntered = !!(s.drRight || s.drLeft || s.macRight || s.macLeft || s.ocularPlan || num(s.cstRight) !== null || num(s.cstLeft) !== null || s.diabetesType || duration !== null || hba1c !== null || prev !== null || interval !== null || s.frailty || bmi !== null || s.ethnicity || sbp !== null || dbp !== null || s.lipid || s.hardExudates || egfr !== null || s.uacr || s.anaemia || hb !== null || s.smoking || s.vba || cvd.length || s.cerebro || s.dan || s.osas || s.foot || s.amputation || s.otherDisease.length || medRecorded(s));
+    var gp = gpParts.length
+      ? 'Dear GP colleague, ' + gpParts.join(' ')
+      : (clinicallyEntered ? GP_CLEAR : 'Enter the systemic parameters. This paragraph lists only actions that are out of target.');
+
+    var safety = [];
+    if (danActive) safety.push('Poor pharmacological mydriasis possible (autonomic neuropathy).');
+    if (recentAcs || recentStroke) safety.push(VEGF_TEXT);
+
+    var hbaLine = (hba1c === null ? 'not recorded' : hba1c + ' mmol/mol')
+      + ' (previous ' + (prev === null ? 'not recorded' : prev + ' mmol/mol')
+      + ', interval ' + (interval === null ? 'not recorded' : interval + ' months')
+      + ', delta ' + fmtDelta(delta) + '); frailty: ' + (s.frailty ? 'yes' : 'no');
+
+    var alertBlock = alerts.length
+      ? alerts.map(function (alert) { return '- ' + alert.level.toUpperCase() + ': ' + alert.text; }).join('\n')
+      : 'None.';
+
+    var epr = [
+      'DR SYSTEMIC RISK FACTOR ASSESSMENT',
+      'QI ID: ' + (String(s.qiId).trim() || 'not recorded'),
+      'Ocular: Right DR ' + (s.drRight || 'not recorded')
+        + ', ' + (s.macRight || 'M not recorded')
+        + ', CST ' + (num(s.cstRight) === null ? 'not recorded' : num(s.cstRight) + ' \u00B5m')
+        + ' | Left DR ' + (s.drLeft || 'not recorded')
+        + ', ' + (s.macLeft || 'M not recorded')
+        + ', CST ' + (num(s.cstLeft) === null ? 'not recorded' : num(s.cstLeft) + ' \u00B5m')
+        + ' | Plan: ' + (s.ocularPlan || 'not recorded'),
+      '',
+      'Systemic:',
+      '1. Diabetes: ' + (s.diabetesType || 'not recorded'),
+      '2. Duration: ' + (duration === null ? 'not recorded' : duration + ' years'),
+      '3. HbA1c: ' + hbaLine,
+      '4. BMI: ' + (bmi === null ? 'not recorded' : bmi + ' kg/m\u00B2') + '; ethnicity adjustment: ' + (s.ethnicity ? 'yes' : 'no'),
+      '5. Blood pressure: ' + fmtBp(sbp, dbp) + ' mmHg; target ' + target.label,
+      '6. Lipids: ' + (s.lipid || 'not recorded') + '; hard exudates: ' + (s.hardExudates ? 'yes' : 'no'),
+      '7. Renal: eGFR ' + (egfr === null ? 'not recorded' : egfr + ' mL/min/1.73m\u00B2') + '; uACR ' + (s.uacr || 'not recorded'),
+      '8. Anaemia: ' + (s.anaemia || 'not recorded') + '; Hb ' + (hb === null ? 'not recorded' : hb + ' g/L'),
+      '9. Smoking: ' + (s.smoking || 'not recorded') + '; VBA: ' + (s.vba ? 'yes' : 'no'),
+      '10. CVD: ' + (cvd.length ? cvd.join(', ') : 'not recorded'),
+      '11. Cerebrovascular disease: ' + (s.cerebro || 'not recorded'),
+      '12. Autonomic neuropathy: ' + (s.dan || 'not recorded'),
+      '13. Sleep apnoea: ' + (s.osas || 'not recorded'),
+      '14. Foot ulcers: ' + (s.foot || 'not recorded') + '; lower limb/foot amputation: ' + (s.amputation ? 'yes' : 'no'),
+      '15. Other disease: ' + otherDiseaseLine(s.otherDisease),
+      '16. Current medication: ' + medSummary(s),
+      '',
+      'Alerts:',
+      alertBlock,
+      '',
+      'Ophthalmic safety:',
+      safety.length ? safety.map(function (line) { return '- ' + line; }).join('\n') : 'None.'
+    ].join('\n');
+
+    var codes = [];
+    alerts.forEach(function (alert) {
+      alert.codes.forEach(function (code) {
+        if (isQof(code) && codes.indexOf(code) === -1) codes.push(code);
+      });
+    });
+
+    return {
+      alerts: alerts,
+      toTarget: toTarget,
+      gp: gp,
+      epr: epr,
+      bpTarget: target.label,
+      delta: delta,
+      qofCodes: codes,
+      promptVba: s.smoking === 'Current Smoker'
+    };
+  }
+
+  function csvRow(state, result, when) {
+    var s = normalise(state);
+    var d = when instanceof Date ? when : new Date();
+    var cvd = cvdList(s);
+    function joinLevel(level) {
+      return result.alerts.filter(function (alert) { return alert.level === level; }).map(function (alert) { return alert.text; }).join(' | ');
+    }
+    return {
+      timestamp_local: localStamp(d),
+      qi_id: String(s.qiId).trim(),
+      dr_grade_right: s.drRight,
+      dr_grade_left: s.drLeft,
+      maculopathy_right: s.macRight,
+      maculopathy_left: s.macLeft,
+      cst_right_um: blankNum(s.cstRight),
+      cst_left_um: blankNum(s.cstLeft),
+      ocular_plan: s.ocularPlan,
+      diabetes_type: s.diabetesType,
+      duration_years: blankNum(s.duration),
+      hba1c_current: blankNum(s.hba1c),
+      hba1c_previous: blankNum(s.hba1cPrev),
+      hba1c_interval_months: blankNum(s.hba1cInterval),
+      hba1c_delta: result.delta === null ? '' : String(round1(result.delta)),
+      frailty: yn(s.frailty),
+      bmi: blankNum(s.bmi),
+      ethnicity_adjustment: yn(s.ethnicity),
+      height_cm: blankNum(s.heightCm),
+      weight_kg: blankNum(s.weightKg),
+      sbp: blankNum(s.sbp),
+      dbp: blankNum(s.dbp),
+      bp_target: result.bpTarget,
+      lipid_status: s.lipid,
+      hard_exudates: yn(s.hardExudates),
+      egfr: blankNum(s.egfr),
+      uacr: s.uacr,
+      anaemia_status: s.anaemia,
+      hb_gl: blankNum(s.hb),
+      smoking: s.smoking,
+      vba_delivered: yn(s.vba),
+      cvd: cvd.join(' | '),
+      cerebrovascular: s.cerebro,
+      dan: s.dan,
+      osas: s.osas,
+      foot_ulcer: s.foot,
+      foot_amputation: yn(s.amputation),
+      other_disease: s.otherDisease.map(function (item) {
+        return item.code ? item.code + ' ' + item.term : item.term;
+      }).join(' | '),
+      med_glp1: s.medGlp,
+      med_glp1_course: s.medGlpStart,
+      med_metformin: s.medMetformin,
+      med_sulfonylurea: s.medSu,
+      med_dpp4: s.medDpp4,
+      med_sglt2: s.medSglt2,
+      med_basal_insulin: s.medBasal,
+      med_prandial_insulin: s.medPrandial,
+      med_other_glucose: s.medOther,
+      med_statin: s.medStatin,
+      med_other_lipid: s.medLipid,
+      med_ace_arb: s.medAce,
+      med_ccb_diuretic: s.medCcb,
+      med_other_bp: s.medOtherBp,
+      red_flags: joinLevel('red'),
+      amber_flags: joinLevel('amber'),
+      caveat_flags: joinLevel('caveat'),
+      qof_codes: result.qofCodes.join('|'),
+      to_target_domains: result.toTarget.join('|')
+    };
+  }
+
+  function toCsv(rows) {
+    var header = CSV_COLUMNS.join(',');
+    var lines = rows.map(function (row) {
+      return CSV_COLUMNS.map(function (col) { return csvEscape(row[col]); }).join(',');
+    });
+    return '\uFEFF' + header + '\r\n' + lines.join('\r\n') + '\r\n';
+  }
+  /* PURE END */
+
+  var STORE = 'retinaQiSession';
+
+  function $(id) { return document.getElementById(id); }
+
+  function pressed(group) {
+    var btn = document.querySelector('button[data-group="' + group + '"][aria-pressed="true"]');
+    return btn ? btn.getAttribute('data-value') : '';
+  }
+
+  function pressedMulti(group) {
+    return Array.prototype.map.call(
+      document.querySelectorAll('button[data-group="' + group + '"][aria-pressed="true"]'),
+      function (btn) { return btn.getAttribute('data-value'); }
+    );
+  }
+
+  function readState() {
+    return {
+      qiId: $('qiId').value,
+      drRight: pressed('drRight'),
+      drLeft: pressed('drLeft'),
+      macRight: pressed('macRight'),
+      macLeft: pressed('macLeft'),
+      cstRight: $('cstRight').value,
+      cstLeft: $('cstLeft').value,
+      ocularPlan: $('ocularPlan').value,
+      diabetesType: pressed('diabetes'),
+      duration: $('duration').value,
+      hba1c: $('hba1c').value,
+      hba1cPrev: $('hba1cPrev').value,
+      hba1cInterval: $('hba1cInterval').value,
+      frailty: $('frailty').checked,
+      bmi: $('bmi').value,
+      heightCm: $('heightCm').value,
+      weightKg: $('weightKg').value,
+      ethnicity: $('ethnicity').checked,
+      sbp: $('sbp').value,
+      dbp: $('dbp').value,
+      lipid: pressed('lipid'),
+      hardExudates: $('exudates').checked,
+      egfr: $('egfr').value,
+      uacr: pressed('uacr'),
+      anaemia: pressed('anaemia'),
+      hb: $('hb').value,
+      smoking: pressed('smoking'),
+      vba: $('vba').checked,
+      cvd: pressedMulti('cvd'),
+      cerebro: pressed('cerebro'),
+      dan: pressed('dan'),
+      osas: pressed('osas'),
+      foot: pressed('foot'),
+      amputation: $('amputation').checked,
+      otherDisease: otherItems.map(function (item) { return { code: item.code, term: item.term }; }),
+      medGlp: $('medGlp').value,
+      medGlpStart: $('medGlpStart').value,
+      medMetformin: $('medMetformin').value,
+      medSu: $('medSu').value,
+      medDpp4: $('medDpp4').value,
+      medSglt2: $('medSglt2').value,
+      medBasal: $('medBasal').value,
+      medPrandial: $('medPrandial').value,
+      medOther: $('medOther').value,
+      medStatin: $('medStatin').value,
+      medLipid: $('medLipid').value,
+      medAce: $('medAce').value,
+      medCcb: $('medCcb').value,
+      medOtherBp: $('medOtherBp').value
+    };
+  }
+
+  function readStore() {
+    try {
+      var raw = sessionStorage.getItem(STORE);
+      var parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function writeStore(rows) {
+    sessionStorage.setItem(STORE, JSON.stringify(rows));
+  }
+
+  function updateCount() {
+    var n = readStore().length;
+    $('sessionCount').textContent = 'Session: ' + n + (n === 1 ? ' case' : ' cases') + ' \u00B7 this tab only';
+  }
+
+  function anyEntered(s) {
+    var keys = Object.keys(s);
+    for (var i = 0; i < keys.length; i++) {
+      var value = s[keys[i]];
+      if (typeof value === 'boolean' && value) return true;
+      if (Array.isArray(value) && value.length) return true;
+      if (typeof value === 'string' && value.trim() !== '') return true;
+    }
+    return false;
+  }
+
+  function render() {
+    var s = readState();
+    var result = evaluate(s);
+    $('epr').value = result.epr;
+    $('gp').value = result.gp;
+    $('hbaHint').textContent = s.frailty ? 'Target \u226475 (DM021)' : 'Target \u226458 (DM020)';
+    $('bpHint').textContent = 'Target ' + result.bpTarget;
+    $('vbaWrap').classList.toggle('needs-vba', result.promptVba);
+
+    var reds = result.alerts.filter(function (a) { return a.level === 'red'; }).length;
+    var ambers = result.alerts.filter(function (a) { return a.level === 'amber'; }).length;
+    $('alertTitle').textContent = '1. Prioritised clinical alerts (' + reds + ' red, ' + ambers + ' amber)';
+
+    $('badges').innerHTML = result.toTarget.map(function (label) {
+      return '<span class="badge">' + label + ' to target</span>';
+    }).join('');
+
+    if (!result.alerts.length) {
+      $('alerts').innerHTML = '<p class="empty">' + (anyEntered(s)
+        ? 'No red, amber, or caveat flags for the values entered.'
+        : 'Enter parameters. Alerts update as you type.') + '</p>';
+    } else {
+      $('alerts').innerHTML = result.alerts.map(function (alert) {
+        var tag = alert.level === 'red' ? 'RED' : (alert.level === 'amber' ? 'AMBER' : 'CAVEAT');
+        return '<p class="alert ' + alert.level + '"><span class="tag">' + tag + '</span>' + escapeHtml(alert.text) + '</p>';
+      }).join('');
+    }
+    window.__qiResult = result;
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function syncDurationPills() {
+    var n = num($('duration').value);
+    var match = '';
+    if (n !== null) {
+      if (n < 5) match = '4';
+      else if (n <= 10) match = '7';
+      else if (n <= 20) match = '15';
+      else match = '21';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-group="duration"]'), function (btn) {
+      btn.setAttribute('aria-pressed', btn.getAttribute('data-value') === match ? 'true' : 'false');
+    });
+  }
+
+  function fallbackCopy(text) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+  }
+
+  function copyText(text, btn) {
+    var label = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', label);
+    function done() {
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.textContent = label; }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        fallbackCopy(text);
+        done();
+      });
+    } else {
+      fallbackCopy(text);
+      done();
+    }
+  }
+
+  function orderCases(rows) {
+    var copy = rows.map(function (row) {
+      var next = {};
+      for (var key in row) {
+        if (Object.prototype.hasOwnProperty.call(row, key)) next[key] = row[key];
+      }
+      return next;
+    });
+    for (var i = 0; i < copy.length; i++) {
+      if (!copy[i].case_no) copy[i].case_no = String(i + 1);
+    }
+    copy.sort(function (a, b) { return Number(a.case_no) - Number(b.case_no); });
+    for (var j = 0; j < copy.length; j++) copy[j].case_no = String(j + 1);
+    return copy;
+  }
+
+  function logCase() {
+    var s = readState();
+    var row = csvRow(s, evaluate(s), new Date());
+    var all = readStore();
+    var id = String(s.qiId).trim();
+    if (id) {
+      var idx = -1;
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].qi_id === id) idx = i;
+      }
+      if (idx >= 0) {
+        row.case_no = all[idx].case_no || String(idx + 1);
+        all[idx] = row;
+      } else {
+        row.case_no = String(all.length + 1);
+        all.push(row);
+      }
+    } else {
+      row.case_no = String(all.length + 1);
+      all.push(row);
+    }
+    writeStore(orderCases(all));
+    updateCount();
+  }
+
+  function clearForm() {
+    $('form').reset();
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-group]'), function (btn) {
+      btn.setAttribute('aria-pressed', 'false');
+    });
+    $('bmiPop').hidden = true;
+    resetOther();
+    render();
+  }
+
+  /* XLSX START */
+  var CRC_TABLE = (function () {
+    var table = [];
+    for (var n = 0; n < 256; n++) {
+      var c = n;
+      for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      table.push(c >>> 0);
+    }
+    return table;
+  })();
+
+  function crc32(bytes) {
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) crc = (CRC_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8)) >>> 0;
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function u16(n) {
+    return new Uint8Array([n & 255, (n >>> 8) & 255]);
+  }
+
+  function u32(n) {
+    return new Uint8Array([n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]);
+  }
+
+  function concatBytes(parts) {
+    var total = 0;
+    for (var i = 0; i < parts.length; i++) total += parts[i].length;
+    var out = new Uint8Array(total);
+    var offset = 0;
+    for (var j = 0; j < parts.length; j++) {
+      out.set(parts[j], offset);
+      offset += parts[j].length;
+    }
+    return out;
+  }
+
+  function zipStore(files) {
+    var encoder = new TextEncoder();
+    var locals = [];
+    var centrals = [];
+    var offset = 0;
+    for (var i = 0; i < files.length; i++) {
+      var name = encoder.encode(files[i].name);
+      var data = encoder.encode(files[i].text);
+      var crc = crc32(data);
+      var local = concatBytes([
+        u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), name
+      ]);
+      locals.push(local, data);
+      centrals.push(concatBytes([
+        u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), u16(0),
+        u16(0), u16(0), u32(0), u32(offset), name
+      ]));
+      offset += local.length + data.length;
+    }
+    var central = concatBytes(centrals);
+    var end = concatBytes([
+      u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length),
+      u32(central.length), u32(offset), u16(0)
+    ]);
+    return concatBytes(locals.concat([central, end]));
+  }
+
+  function xmlText(value) {
+    return String(value == null ? '' : value)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function colLetter(index) {
+    var n = index + 1;
+    var letters = '';
+    while (n > 0) {
+      var rem = (n - 1) % 26;
+      letters = String.fromCharCode(65 + rem) + letters;
+      n = Math.floor((n - 1) / 26);
+    }
+    return letters;
+  }
+
+  function sheetXml(headers, matrix) {
+    var numeric = {};
+    var cols = headers.map(function (header, index) {
+      var width = Math.min(42, Math.max(12, String(header.label).length + 2));
+      numeric[index] = header.numeric;
+      return '<col min="' + (index + 1) + '" max="' + (index + 1) + '" width="' + width + '" customWidth="1"/>';
+    }).join('');
+    var lastCol = colLetter(headers.length - 1);
+    var lastRow = matrix.length + 1;
+    function cell(col, row, value, isNumber, headerStyle) {
+      var ref = colLetter(col) + row;
+      if (value == null || value === '') return '';
+      if (isNumber && isFinite(Number(value))) return '<c r="' + ref + '" t="n"' + (headerStyle ? ' s="1"' : '') + '><v>' + Number(value) + '</v></c>';
+      return '<c r="' + ref + '" t="inlineStr"' + (headerStyle ? ' s="1"' : '') + '><is><t xml:space="preserve">' + xmlText(value) + '</t></is></c>';
+    }
+    var head = headers.map(function (header, index) {
+      return cell(index, 1, header.label, false, true);
+    }).join('');
+    var body = matrix.map(function (record, rIndex) {
+      var cells = headers.map(function (header, cIndex) {
+        return cell(cIndex, rIndex + 2, record[cIndex], numeric[cIndex], false);
+      }).join('');
+      return '<row r="' + (rIndex + 2) + '">' + cells + '</row>';
+    }).join('');
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<dimension ref="A1:' + lastCol + lastRow + '"/>' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<cols>' + cols + '</cols>' +
+      '<sheetData><row r="1">' + head + '</row>' + body + '</sheetData>' +
+      '<autoFilter ref="A1:' + lastCol + lastRow + '"/>' +
+      '</worksheet>';
+  }
+
+  function flagCount(text) {
+    if (!text) return 0;
+    return String(text).split(' | ').filter(function (part) { return part !== ''; }).length;
+  }
+
+  function buildWorkbook(rows) {
+    var fullHeaders = [{ label: 'case_no', numeric: true }].concat(CSV_COLUMNS.map(function (name) {
+      return {
+        label: name,
+        numeric: {
+          cst_right_um: 1, cst_left_um: 1, duration_years: 1, hba1c_current: 1, hba1c_previous: 1,
+          hba1c_interval_months: 1, hba1c_delta: 1, bmi: 1, height_cm: 1, weight_kg: 1,
+          sbp: 1, dbp: 1, egfr: 1, hb_gl: 1
+        }[name] === 1
+      };
+    }));
+    var fullMatrix = rows.map(function (row) {
+      return fullHeaders.map(function (header, index) {
+        return index === 0 ? row.case_no : row[header.label];
+      });
+    });
+    var simpleHeaders = [
+      ['Case', 'case_no', true],
+      ['Time', 'timestamp_local', false],
+      ['QI ID', 'qi_id', false],
+      ['Diabetes', 'diabetes_type', false],
+      ['Duration years', 'duration_years', true],
+      ['HbA1c', 'hba1c_current', true],
+      ['HbA1c change', 'hba1c_delta', true],
+      ['Systolic', 'sbp', true],
+      ['Diastolic', 'dbp', true],
+      ['BP target', 'bp_target', false],
+      ['eGFR', 'egfr', true],
+      ['uACR', 'uacr', false],
+      ['BMI', 'bmi', true],
+      ['Right DR', 'dr_grade_right', false],
+      ['Left DR', 'dr_grade_left', false],
+      ['Right maculopathy', 'maculopathy_right', false],
+      ['Left maculopathy', 'maculopathy_left', false],
+      ['CST right', 'cst_right_um', true],
+      ['CST left', 'cst_left_um', true],
+      ['Lipids', 'lipid_status', false],
+      ['GLP-1 / GIP', 'med_glp1', false],
+      ['SGLT2', 'med_sglt2', false],
+      ['Statin', 'med_statin', false],
+      ['ACEi / ARB', 'med_ace_arb', false],
+      ['Foot ulcer', 'foot_ulcer', false],
+      ['Amputation', 'foot_amputation', false],
+      ['Other disease', 'other_disease', false],
+      ['Smoking', 'smoking', false],
+      ['Red count', 'red_count', true],
+      ['Amber count', 'amber_count', true],
+      ['QOF codes', 'qof_codes', false]
+    ].map(function (item) { return { label: item[0], key: item[1], numeric: item[2] }; });
+    var simpleMatrix = rows.map(function (row) {
+      return simpleHeaders.map(function (header) {
+        if (header.key === 'red_count') return flagCount(row.red_flags);
+        if (header.key === 'amber_count') return flagCount(row.amber_flags);
+        return row[header.key];
+      });
+    });
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>' +
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF005EB8"/></patternFill></fill></fills>' +
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+      '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>' +
+      '</styleSheet>';
+    var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<bookViews><workbookView activeTab="0"/></bookViews>' +
+      '<sheets><sheet name="Full audit" sheetId="1" r:id="rId1"/><sheet name="Simple" sheetId="2" r:id="rId2"/></sheets>' +
+      '</workbook>';
+    return zipStore([
+      { name: '[Content_Types].xml', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+      { name: '_rels/.rels', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: 'xl/workbook.xml', text: workbook },
+      { name: 'xl/_rels/workbook.xml.rels', text: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+      { name: 'xl/styles.xml', text: styles },
+      { name: 'xl/worksheets/sheet1.xml', text: sheetXml(fullHeaders, fullMatrix) },
+      { name: 'xl/worksheets/sheet2.xml', text: sheetXml(simpleHeaders, simpleMatrix) }
+    ]);
+  }
+  /* XLSX END */
+
+  function exportCsv() {
+    var rows = orderCases(readStore());
+    if (!rows.length) {
+      var current = csvRow(readState(), evaluate(readState()), new Date());
+      current.case_no = '1';
+      rows = [current];
+    } else {
+      writeStore(rows);
+    }
+    var blob = new Blob([buildWorkbook(rows)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    var link = document.createElement('a');
+    var now = new Date();
+    function p(n) { return String(n).padStart(2, '0'); }
+    link.href = URL.createObjectURL(blob);
+    link.download = 'retina_qi_systemic_audit_' + now.getFullYear() + '-' + p(now.getMonth() + 1) + '-' + p(now.getDate()) + '.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(link.href); }, 1500);
+  }
+
+  document.getElementById('form').addEventListener('submit', function (event) {
+    event.preventDefault();
+  });
+
+  document.getElementById('form').addEventListener('click', function (event) {
+    var btn = event.target.closest('button[data-group]');
+    if (!btn) return;
+    var group = btn.getAttribute('data-group');
+    var multi = btn.getAttribute('data-multi') === '1';
+    if (multi) {
+      var exclusive = btn.getAttribute('data-exclusive') === '1';
+      var turningOn = btn.getAttribute('aria-pressed') !== 'true';
+      if (exclusive) {
+        Array.prototype.forEach.call(document.querySelectorAll('button[data-group="' + group + '"]'), function (other) {
+          other.setAttribute('aria-pressed', 'false');
+        });
+        if (turningOn) btn.setAttribute('aria-pressed', 'true');
+      } else {
+        Array.prototype.forEach.call(document.querySelectorAll('button[data-group="' + group + '"][data-exclusive="1"]'), function (other) {
+          other.setAttribute('aria-pressed', 'false');
+        });
+        btn.setAttribute('aria-pressed', turningOn ? 'true' : 'false');
+      }
+    } else {
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-group="' + group + '"]'), function (other) {
+        other.setAttribute('aria-pressed', 'false');
+      });
+      btn.setAttribute('aria-pressed', 'true');
+      if (group === 'duration') $('duration').value = btn.getAttribute('data-value');
+    }
+    render();
+  });
+
+  document.getElementById('form').addEventListener('input', function (event) {
+    if (event.target.id === 'duration') syncDurationPills();
+    render();
+  });
+
+  document.getElementById('form').addEventListener('change', render);
+
+  document.getElementById('form').addEventListener('wheel', function (event) {
+    if (event.target && event.target.type === 'number') event.preventDefault();
+  }, { passive: false });
+
+  $('bmiCalcBtn').addEventListener('click', function () {
+    $('bmiPop').hidden = !$('bmiPop').hidden;
+  });
+
+  $('bmiApply').addEventListener('click', function () {
+    var height = num($('heightCm').value);
+    var weight = num($('weightKg').value);
+    if (height && weight && height > 0) {
+      $('bmi').value = (weight / Math.pow(height / 100, 2)).toFixed(1);
+      $('bmiPop').hidden = true;
+      render();
+    }
+  });
+
+  $('copyEpr').addEventListener('click', function () { copyText($('epr').value, $('copyEpr')); });
+  $('copyGp').addEventListener('click', function () { copyText($('gp').value, $('copyGp')); });
+  $('logCase').addEventListener('click', function () {
+    logCase();
+    var btn = $('logCase');
+    btn.textContent = 'Logged';
+    setTimeout(function () { btn.textContent = 'Log Case to Session'; }, 1200);
+  });
+  $('clearForm').addEventListener('click', clearForm);
+  $('exportCsv').addEventListener('click', exportCsv);
+
+  var otherItems = [];
+  var icdActive = -1;
+  var ICD = [
+    ['A15', 'Respiratory tuberculosis', 'tb tuberculosis'],
+    ['A41', 'Other sepsis', 'sepsis'],
+    ['B16', 'Acute hepatitis B', 'hepatitis b hbv'],
+    ['B17', 'Other acute viral hepatitis', 'hepatitis'],
+    ['B18', 'Chronic viral hepatitis', 'hepatitis b c hbv hcv'],
+    ['B20', 'HIV disease resulting in infectious and parasitic diseases', 'hiv aids'],
+    ['B24', 'Unspecified human immunodeficiency virus disease', 'hiv aids'],
+    ['C16', 'Malignant neoplasm of stomach', 'gastric cancer stomach'],
+    ['C18', 'Malignant neoplasm of colon', 'colon cancer bowel colorectal'],
+    ['C20', 'Malignant neoplasm of rectum', 'rectal cancer bowel colorectal'],
+    ['C22', 'Malignant neoplasm of liver and intrahepatic bile ducts', 'liver cancer hcc'],
+    ['C25', 'Malignant neoplasm of pancreas', 'pancreatic cancer'],
+    ['C34', 'Malignant neoplasm of bronchus and lung', 'lung cancer'],
+    ['C43', 'Malignant melanoma of skin', 'melanoma'],
+    ['C50', 'Malignant neoplasm of breast', 'breast cancer'],
+    ['C53', 'Malignant neoplasm of cervix uteri', 'cervical cancer'],
+    ['C54', 'Malignant neoplasm of corpus uteri', 'endometrial cancer uterine'],
+    ['C56', 'Malignant neoplasm of ovary', 'ovarian cancer'],
+    ['C61', 'Malignant neoplasm of prostate', 'prostate cancer'],
+    ['C64', 'Malignant neoplasm of kidney, except renal pelvis', 'renal cancer kidney'],
+    ['C67', 'Malignant neoplasm of bladder', 'bladder cancer'],
+    ['C71', 'Malignant neoplasm of brain', 'brain tumour tumor'],
+    ['C73', 'Malignant neoplasm of thyroid gland', 'thyroid cancer'],
+    ['C80', 'Malignant neoplasm, without specification of site', 'cancer malignancy'],
+    ['C81', 'Hodgkin lymphoma', 'lymphoma hodgkins'],
+    ['C83', 'Non-follicular lymphoma', 'lymphoma nhl'],
+    ['C85', 'Other and unspecified types of non-Hodgkin lymphoma', 'lymphoma nhl'],
+    ['C90', 'Multiple myeloma and malignant plasma cell neoplasms', 'myeloma'],
+    ['C91', 'Lymphoid leukaemia', 'leukemia all cll'],
+    ['C92', 'Myeloid leukaemia', 'leukemia aml cml'],
+    ['D45', 'Polycythaemia vera', 'polycythemia'],
+    ['D46', 'Myelodysplastic syndromes', 'mds'],
+    ['D50', 'Iron deficiency anaemia', 'anemia iron'],
+    ['D51', 'Vitamin B12 deficiency anaemia', 'b12 pernicious anemia anaemia'],
+    ['D52', 'Folate deficiency anaemia', 'folate folic anemia anaemia'],
+    ['D56', 'Thalassaemia', 'thalassemia'],
+    ['D57', 'Sickle-cell disorders', 'sickle cell'],
+    ['D64', 'Other anaemias', 'anemia anaemia'],
+    ['D68', 'Other coagulation defects', 'coagulopathy bleeding'],
+    ['D69', 'Purpura and other haemorrhagic conditions', 'itp thrombocytopenia'],
+    ['D70', 'Agranulocytosis', 'neutropenia'],
+    ['D86', 'Sarcoidosis', 'sarcoid'],
+    ['E03', 'Hypothyroidism', 'thyroid underactive myxoedema'],
+    ['E04', 'Other nontoxic goitre', 'thyroid goiter goitre'],
+    ['E05', 'Thyrotoxicosis', 'thyroid hyperthyroidism graves overactive'],
+    ['E06', 'Thyroiditis', 'thyroid hashimoto'],
+    ['E07', 'Other disorders of thyroid', 'thyroid'],
+    ['E10', 'Type 1 diabetes mellitus', 't1dm diabetes'],
+    ['E11', 'Type 2 diabetes mellitus', 't2dm diabetes'],
+    ['E16', 'Other disorders of pancreatic internal secretion', 'hypoglycaemia hyperinsulinism'],
+    ['E21', 'Hyperparathyroidism and other disorders of parathyroid gland', 'parathyroid calcium'],
+    ['E22', 'Hyperfunction of pituitary gland', 'pituitary acromegaly cushings prolactinoma'],
+    ['E23', 'Hypofunction and other disorders of pituitary gland', 'pituitary hypopituitarism'],
+    ['E27', 'Other disorders of adrenal gland', 'adrenal addisons cushings'],
+    ['E55', 'Vitamin D deficiency', 'vitamin d'],
+    ['E66', 'Obesity', 'obese bmi'],
+    ['E78', 'Disorders of lipoprotein metabolism and other lipidaemias', 'cholesterol lipid hyperlipidaemia'],
+    ['E79', 'Disorders of purine and pyrimidine metabolism', 'hyperuricaemia uric acid'],
+    ['E83', 'Disorders of mineral metabolism', 'calcium magnesium phosphate haemochromatosis'],
+    ['E84', 'Cystic fibrosis', 'cf'],
+    ['E86', 'Volume depletion', 'dehydration'],
+    ['E87', 'Other disorders of fluid, electrolyte and acid-base balance', 'hyponatraemia hyperkalaemia electrolyte'],
+    ['E89', 'Postprocedural endocrine and metabolic disorders', 'post procedural'],
+    ['F00', 'Dementia in Alzheimer disease', 'alzheimer dementia'],
+    ['F01', 'Vascular dementia', 'dementia'],
+    ['F03', 'Unspecified dementia', 'dementia'],
+    ['F06', 'Other mental disorders due to brain damage and dysfunction and to physical disease', 'organic mental'],
+    ['F10', 'Mental and behavioural disorders due to use of alcohol', 'alcohol dependence'],
+    ['F17', 'Mental and behavioural disorders due to use of tobacco', 'nicotine tobacco'],
+    ['F20', 'Schizophrenia', 'psychosis'],
+    ['F29', 'Unspecified nonorganic psychosis', 'psychosis'],
+    ['F31', 'Bipolar affective disorder', 'bipolar manic'],
+    ['F32', 'Depressive episode', 'depression'],
+    ['F33', 'Recurrent depressive disorder', 'depression'],
+    ['F40', 'Phobic anxiety disorders', 'phobia anxiety'],
+    ['F41', 'Other anxiety disorders', 'anxiety gad panic'],
+    ['F42', 'Obsessive-compulsive disorder', 'ocd'],
+    ['F43', 'Reaction to severe stress, and adjustment disorders', 'ptsd stress adjustment'],
+    ['F45', 'Somatoform disorders', 'somatic'],
+    ['F50', 'Eating disorders', 'anorexia bulimia'],
+    ['F51', 'Nonorganic sleep disorders', 'insomnia'],
+    ['F60', 'Specific personality disorders', 'personality'],
+    ['F84', 'Pervasive developmental disorders', 'autism asperger'],
+    ['F90', 'Hyperkinetic disorders', 'adhd'],
+    ['F99', 'Mental disorder, not otherwise specified', 'mental'],
+    ['G20', 'Parkinson disease', 'parkinsons pd'],
+    ['G30', 'Alzheimer disease', 'alzheimer dementia'],
+    ['G35', 'Multiple sclerosis', 'ms'],
+    ['G40', 'Epilepsy', 'seizure fits'],
+    ['G43', 'Migraine', 'headache'],
+    ['G45', 'Transient cerebral ischaemic attacks and related syndromes', 'tia'],
+    ['G47', 'Sleep disorders', 'insomnia sleep apnoea osa'],
+    ['G56', 'Mononeuropathies of upper limb', 'carpal tunnel'],
+    ['G62', 'Other polyneuropathies', 'neuropathy'],
+    ['G63', 'Polyneuropathy in diseases classified elsewhere', 'neuropathy diabetic'],
+    ['G70', 'Myasthenia gravis', 'myasthenia'],
+    ['G80', 'Cerebral palsy', 'cp'],
+    ['G81', 'Hemiplegia', 'hemiparesis'],
+    ['H25', 'Senile cataract', 'cataract age-related'],
+    ['H26', 'Other cataract', 'cataract'],
+    ['H35', 'Other retinal disorders', 'retina'],
+    ['H36', 'Retinal disorders in diseases classified elsewhere', 'retina'],
+    ['H40', 'Glaucoma', 'glaucoma'],
+    ['H90', 'Conductive and sensorineural hearing loss', 'deaf hearing'],
+    ['H91', 'Other hearing loss', 'deaf hearing'],
+    ['I10', 'Essential (primary) hypertension', 'hypertension bp blood pressure'],
+    ['I11', 'Hypertensive heart disease', 'hypertension'],
+    ['I12', 'Hypertensive renal disease', 'hypertension kidney'],
+    ['I20', 'Angina pectoris', 'angina chest pain ihd'],
+    ['I21', 'Acute myocardial infarction', 'mi heart attack stemi nstemi'],
+    ['I25', 'Chronic ischaemic heart disease', 'ihd cad coronary'],
+    ['I26', 'Pulmonary embolism', 'pe'],
+    ['I27', 'Other pulmonary heart diseases', 'pulmonary hypertension cor pulmonale'],
+    ['I34', 'Nonrheumatic mitral valve disorders', 'mitral valve'],
+    ['I35', 'Nonrheumatic aortic valve disorders', 'aortic stenosis valve'],
+    ['I42', 'Cardiomyopathy', 'cardiomyopathy'],
+    ['I44', 'Atrioventricular and left bundle-branch block', 'heart block lbbb'],
+    ['I48', 'Atrial fibrillation and flutter', 'af afib flutter'],
+    ['I49', 'Other cardiac arrhythmias', 'arrhythmia svt'],
+    ['I50', 'Heart failure', 'hf ccf chf lvsd'],
+    ['I60', 'Subarachnoid haemorrhage', 'sah'],
+    ['I61', 'Intracerebral haemorrhage', 'ich bleed'],
+    ['I63', 'Cerebral infarction', 'stroke cva infarct'],
+    ['I64', 'Stroke, not specified as haemorrhage or infarction', 'stroke cva'],
+    ['I69', 'Sequelae of cerebrovascular disease', 'stroke residual'],
+    ['I70', 'Atherosclerosis', 'pvd peripheral vascular'],
+    ['I73', 'Other peripheral vascular diseases', 'pad pvd raynaud claudication'],
+    ['I74', 'Arterial embolism and thrombosis', 'arterial thrombosis'],
+    ['I80', 'Phlebitis and thrombophlebitis', 'dvt thrombosis'],
+    ['I83', 'Varicose veins of lower extremities', 'varicose'],
+    ['I87', 'Other disorders of veins', 'venous insufficiency'],
+    ['I95', 'Hypotension', 'low blood pressure postural'],
+    ['J18', 'Pneumonia, organism unspecified', 'pneumonia'],
+    ['J30', 'Vasomotor and allergic rhinitis', 'hay fever allergy rhinitis'],
+    ['J43', 'Emphysema', 'emphysema'],
+    ['J44', 'Other chronic obstructive pulmonary disease', 'copd'],
+    ['J45', 'Asthma', 'asthma'],
+    ['J47', 'Bronchiectasis', 'bronchiectasis'],
+    ['J84', 'Other interstitial pulmonary diseases', 'ild fibrosis pulmonary fibrosis'],
+    ['J96', 'Respiratory failure, not elsewhere classified', 'respiratory failure'],
+    ['K21', 'Gastro-oesophageal reflux disease', 'gord gerd reflux'],
+    ['K25', 'Gastric ulcer', 'ulcer stomach'],
+    ['K29', 'Gastritis and duodenitis', 'gastritis'],
+    ['K40', 'Inguinal hernia', 'hernia'],
+    ['K50', 'Crohn disease', 'crohns ibd'],
+    ['K51', 'Ulcerative colitis', 'uc ibd colitis'],
+    ['K57', 'Diverticular disease of intestine', 'diverticulitis diverticulosis'],
+    ['K58', 'Irritable bowel syndrome', 'ibs'],
+    ['K70', 'Alcoholic liver disease', 'cirrhosis alcohol liver'],
+    ['K74', 'Fibrosis and cirrhosis of liver', 'cirrhosis liver'],
+    ['K76', 'Other diseases of liver', 'fatty liver nafld liver'],
+    ['K80', 'Cholelithiasis', 'gallstones'],
+    ['K85', 'Acute pancreatitis', 'pancreatitis'],
+    ['K86', 'Other diseases of pancreas', 'chronic pancreatitis'],
+    ['K90', 'Intestinal malabsorption', 'coeliac celiac'],
+    ['L20', 'Atopic dermatitis', 'eczema'],
+    ['L40', 'Psoriasis', 'psoriasis'],
+    ['L97', 'Ulcer of lower limb, not elsewhere classified', 'leg ulcer'],
+    ['M05', 'Seropositive rheumatoid arthritis', 'ra rheumatoid'],
+    ['M06', 'Other rheumatoid arthritis', 'ra rheumatoid'],
+    ['M10', 'Gout', 'gout'],
+    ['M15', 'Polyosteoarthritis', 'oa osteoarthritis'],
+    ['M16', 'Coxarthrosis', 'hip oa osteoarthritis'],
+    ['M17', 'Gonarthrosis', 'knee oa osteoarthritis'],
+    ['M19', 'Other arthrosis', 'oa osteoarthritis'],
+    ['M32', 'Systemic lupus erythematosus', 'sle lupus'],
+    ['M45', 'Ankylosing spondylitis', 'as spondylitis'],
+    ['M54', 'Dorsalgia', 'back pain'],
+    ['M80', 'Osteoporosis with pathological fracture', 'osteoporosis'],
+    ['M81', 'Osteoporosis without pathological fracture', 'osteoporosis'],
+    ['N17', 'Acute renal failure', 'aki acute kidney injury'],
+    ['N18', 'Chronic kidney disease', 'ckd renal failure'],
+    ['N19', 'Unspecified kidney failure', 'renal failure kidney'],
+    ['N20', 'Calculus of kidney and ureter', 'kidney stone renal colic'],
+    ['N30', 'Cystitis', 'uti urine infection'],
+    ['N39', 'Other disorders of urinary system', 'uti urine infection incontinence'],
+    ['N40', 'Hyperplasia of prostate', 'bph prostate'],
+    ['O24', 'Diabetes mellitus in pregnancy', 'gestational diabetes'],
+    ['Z95', 'Presence of cardiac and vascular implants and grafts', 'pacemaker stent valve cabg']
+  ];
+
+  function icdSearch(query) {
+    var q = String(query || '').trim().toLowerCase();
+    if (q.length < 2) return [];
+    var ranked = [];
+    for (var i = 0; i < ICD.length; i++) {
+      var row = ICD[i];
+      var code = row[0].toLowerCase();
+      var term = row[1].toLowerCase();
+      var alias = (row[2] || '').toLowerCase();
+      var words = (term + ' ' + alias).split(/[^a-z0-9]+/);
+      var rank = 99;
+      if (code === q) rank = 0;
+      else if (code.indexOf(q) === 0) rank = 1;
+      else if (term.indexOf(q) === 0) rank = 2;
+      else {
+        var exact = false;
+        var prefix = false;
+        for (var w = 0; w < words.length; w++) {
+          if (!words[w]) continue;
+          if (words[w] === q) exact = true;
+          else if (words[w].indexOf(q) === 0) prefix = true;
+        }
+        var malignant = term.indexOf('malignant') === 0;
+        if (exact && !malignant) rank = 3;
+        else if (prefix && !malignant) rank = 4;
+        else if (exact) rank = 5;
+        else if (prefix) rank = 6;
+      }
+      if (rank < 99) ranked.push({ row: row, rank: rank, index: i });
+    }
+    ranked.sort(function (a, b) { return a.rank - b.rank || a.index - b.index; });
+    return ranked.slice(0, 8).map(function (item) { return item.row; });
+  }
+
+  function hideIcd() {
+    $('icdList').hidden = true;
+    $('icdList').classList.remove('up');
+    $('icdInput').setAttribute('aria-expanded', 'false');
+    $('icdInput').removeAttribute('aria-activedescendant');
+    icdActive = -1;
+  }
+
+  function drawChips() {
+    $('icdChips').innerHTML = otherItems.map(function (item, index) {
+      var label = item.code ? item.code + ' ' + item.term : item.term;
+      return '<span class="chip">' + escapeHtml(label) + '<button type="button" data-icd-remove="' + index + '" aria-label="Remove ' + escapeHtml(label) + '">\u00D7</button></span>';
+    }).join('');
+  }
+
+  function resetOther() {
+    otherItems = [];
+    $('icdInput').value = '';
+    drawChips();
+    hideIcd();
+  }
+
+  function addOther(code, term) {
+    term = String(term || '').trim();
+    if (!term) return;
+    code = String(code || '').trim().toUpperCase();
+    for (var i = 0; i < otherItems.length; i++) {
+      if (code && otherItems[i].code === code) return;
+      if (!code && otherItems[i].term.toLowerCase() === term.toLowerCase()) return;
+    }
+    otherItems.push({ code: code, term: term });
+    $('icdInput').value = '';
+    drawChips();
+    hideIcd();
+    render();
+    $('icdInput').focus();
+  }
+
+  function openIcd() {
+    var input = $('icdInput');
+    var q = input.value;
+    var hits = icdSearch(q);
+    var trimmed = q.trim();
+    var exact = hits.some(function (row) {
+      return row[1].toLowerCase() === trimmed.toLowerCase() || row[0].toLowerCase() === trimmed.toLowerCase();
+    });
+    var rows = hits.map(function (row) { return { code: row[0], term: row[1], free: false }; });
+    if (trimmed && !exact) rows.push({ code: '', term: trimmed, free: true });
+    var list = $('icdList');
+    if (!rows.length) { hideIcd(); return; }
+    if (icdActive < 0 || icdActive >= rows.length) icdActive = 0;
+    list.innerHTML = rows.map(function (row, i) {
+      return '<li role="option" id="icdOpt' + i + '" data-code="' + escapeHtml(row.code) + '" data-term="' + escapeHtml(row.term) + '"' + (i === icdActive ? ' class="on" aria-selected="true"' : '') + '><span class="icd-code">' + (row.free ? 'Free' : escapeHtml(row.code)) + '</span><span>' + escapeHtml(row.term) + '</span></li>';
+    }).join('');
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-activedescendant', 'icdOpt' + icdActive);
+    var rect = input.getBoundingClientRect();
+    var spaceBelow = window.innerHeight - rect.bottom;
+    var up = spaceBelow < 220 && rect.top > spaceBelow;
+    list.style.position = 'fixed';
+    list.style.left = rect.left + 'px';
+    list.style.width = rect.width + 'px';
+    if (up) {
+      list.style.top = 'auto';
+      list.style.bottom = (window.innerHeight - rect.top + 2) + 'px';
+    } else {
+      list.style.bottom = 'auto';
+      list.style.top = (rect.bottom + 2) + 'px';
+    }
+  }
+
+  $('icdInput').addEventListener('input', function () {
+    icdActive = 0;
+    openIcd();
+  });
+
+  $('icdInput').addEventListener('keydown', function (event) {
+    var list = $('icdList');
+    var open = !list.hidden;
+    var options = open ? list.querySelectorAll('li') : [];
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!open) { icdActive = 0; openIcd(); return; }
+      icdActive = Math.min(options.length - 1, icdActive + 1);
+      openIcd();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!open) return;
+      icdActive = Math.max(0, icdActive - 1);
+      openIcd();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (open && options[icdActive]) {
+        addOther(options[icdActive].getAttribute('data-code'), options[icdActive].getAttribute('data-term'));
+      } else if ($('icdInput').value.trim()) {
+        addOther('', $('icdInput').value);
+      }
+    } else if (event.key === 'Escape') {
+      hideIcd();
+    }
+  });
+
+  $('icdList').addEventListener('mousedown', function (event) {
+    var li = event.target.closest('li');
+    if (!li) return;
+    event.preventDefault();
+    addOther(li.getAttribute('data-code'), li.getAttribute('data-term'));
+  });
+
+  $('icdChips').addEventListener('click', function (event) {
+    var btn = event.target.closest('[data-icd-remove]');
+    if (!btn) return;
+    otherItems.splice(Number(btn.getAttribute('data-icd-remove')), 1);
+    drawChips();
+    render();
+  });
+
+  document.addEventListener('mousedown', function (event) {
+    if (!event.target.closest('#icdBox')) hideIcd();
+  });
+
+  window.RetinaQI = {
+    evaluate: evaluate,
+    csvRow: csvRow,
+    toCsv: toCsv,
+    CSV_COLUMNS: CSV_COLUMNS,
+    readState: readState,
+    render: render,
+    logCase: logCase,
+    clearForm: clearForm,
+    readStore: readStore,
+    GP_CLEAR: GP_CLEAR,
+    EARLY_TEXT: EARLY_TEXT,
+    LYING_TEXT: LYING_TEXT,
+    VEGF_TEXT: VEGF_TEXT,
+    OSAS_TEXT: OSAS_TEXT
+  };
+
+  if ((location.protocol === 'http:' || location.protocol === 'https:') && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  }
+
+  render();
+  updateCount();
+})();
+</script>
+</body>
+</html>
