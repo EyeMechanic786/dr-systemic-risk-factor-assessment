@@ -1,5 +1,5 @@
-var CACHE = 'dr-risk-v1';
-var FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png', './sw.js'];
+var CACHE = 'dr-risk-v2';
+var FILES = ['./index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png', './sw.js'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(CACHE).then(function (cache) { return cache.addAll(FILES); }));

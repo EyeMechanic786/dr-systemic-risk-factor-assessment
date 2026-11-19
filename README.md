@@ -8,9 +8,15 @@ Confirm every alert against current NICE guidance, QOF, and local protocol befor
 
 ## Open it
 
-On a clinic computer, open `index.html` in a current browser. The layout is arranged for a 1920×1080 screen.
+Any current browser can open the tool at:
 
-On a phone, serve this folder over the local network or open the page from a trusted local address, then use **Add to Home Screen**:
+**https://eyemechanic786.github.io/dr-systemic-risk-factor-assessment/**
+
+That address works on a clinic PC, another laptop, and a mobile phone. The page is public so no GitHub sign-in is required. Entered cases stay in that browser and are not uploaded.
+
+A wide screen uses the clinic layout. A phone uses one scrolling page. You can still open `index.html` directly from a saved copy of this folder.
+
+On a phone, after the page has loaded, use **Add to Home Screen**:
 
 - iPhone: Safari Share button, then Add to Home Screen.
 - Android: Chrome menu, then Add to Home screen or Install app.
